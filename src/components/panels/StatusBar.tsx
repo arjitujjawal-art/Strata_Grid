@@ -1,5 +1,6 @@
 import React from 'react';
-import { Activity, ShieldCheck, CloudRain, Cpu, Radio, Zap } from 'lucide-react';
+import { Activity, CloudRain, Cpu, Radio, Key } from 'lucide-react';
+import { DecoCorners } from '../common/DecoCorners';
 
 interface StatusBarProps {
   activeHexCount: number;
@@ -21,78 +22,90 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   hasToken
 }) => {
   const getStressBadge = (stress: number) => {
-    if (stress >= 80) return { bg: 'bg-rose-500/20 text-rose-300 border-rose-500/40', text: 'CRITICAL OVERLOAD' };
-    if (stress >= 65) return { bg: 'bg-amber-500/20 text-amber-300 border-amber-500/40', text: 'ELEVATED STRAIN' };
-    return { bg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', text: 'BALANCED / OPTIMAL' };
+    if (stress >= 80) {
+      return {
+        bg: 'bg-[#991B1B]/40 text-[#F2E8C4] border-[#991B1B]',
+        text: 'CRITICAL OVERLOAD'
+      };
+    }
+    if (stress >= 65) {
+      return {
+        bg: 'bg-[#9A7B1C]/40 text-[#F2E8C4] border-[#D4AF37]',
+        text: 'ELEVATED WEAR'
+      };
+    }
+    return {
+      bg: 'bg-[#064E3B]/40 text-[#F2E8C4] border-[#10B981]',
+      text: 'BALANCED / OPTIMAL'
+    };
   };
 
   const badge = getStressBadge(avgStress);
 
   return (
-    <header className="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
-      {/* Brand & Live status */}
-      <div className="flex items-center gap-3 bg-slate-950/80 backdrop-blur-md border border-cyan-500/30 px-3.5 py-2 rounded-xl shadow-2xl shadow-cyan-950/50 pointer-events-auto">
-        <div className="flex items-center gap-2">
-          <div className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
-          </div>
-          <span className="font-extrabold text-sm tracking-wider text-white uppercase font-mono">
-            STRATAGRID <span className="text-cyan-400">AI</span>
+    <header className="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none select-none font-body">
+      {/* Brand & Active Mesh Status */}
+      <div className="flex items-center gap-3 bg-[#0A0A0A]/90 backdrop-blur-md border border-[#D4AF37] px-4 py-2 shadow-[0_0_20px_rgba(212,175,55,0.15)] pointer-events-auto relative">
+        <DecoCorners />
+        <div className="flex items-center gap-2.5">
+          <div className="w-2 h-2 bg-[#D4AF37] rotate-45 animate-pulse" />
+          <span className="font-display font-bold text-sm tracking-[0.2em] text-[#F2F0E4] uppercase">
+            STRATAGRID <span className="text-[#D4AF37]">AI</span>
           </span>
         </div>
-        <div className="h-4 w-px bg-slate-800" />
-        <span className="text-xs text-slate-300 font-mono flex items-center gap-1.5">
-          <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-          PUNE METRO MESH
+        <div className="h-4 w-[1px] bg-[#D4AF37]/40" />
+        <span className="text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] flex items-center gap-1.5 font-semibold">
+          <Radio className="w-3.5 h-3.5 text-[#D4AF37]" />
+          PUNE METROPOLITAN MESH
         </span>
         {isPlayingScenario && scenarioPhase && (
-          <span className="bg-cyan-500/20 border border-cyan-500/50 text-cyan-300 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full animate-pulse">
+          <span className="bg-[#1E3D59] border border-[#D4AF37] text-[#D4AF37] text-[9px] font-display font-bold px-2.5 py-0.5 uppercase tracking-[0.2em]">
             {scenarioPhase}
           </span>
         )}
       </div>
 
       {/* Telemetry Metrics Bar */}
-      <div className="hidden md:flex items-center gap-4 bg-slate-950/80 backdrop-blur-md border border-slate-800/80 px-4 py-2 rounded-xl shadow-xl pointer-events-auto">
-        <div className="flex items-center gap-2 text-xs font-mono text-slate-300">
-          <Cpu className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-slate-400">H3 RES-8 NODES:</span>
-          <span className="font-bold text-white">{activeHexCount}</span>
+      <div className="hidden md:flex items-center gap-5 bg-[#0A0A0A]/90 backdrop-blur-md border border-[#D4AF37]/50 px-5 py-2 shadow-xl pointer-events-auto relative">
+        <DecoCorners />
+        <div className="flex items-center gap-2 text-xs uppercase tracking-[0.15em] text-[#F2F0E4]">
+          <Cpu className="w-3.5 h-3.5 text-[#D4AF37]" />
+          <span className="text-[#888888]">H3 RES-VIII:</span>
+          <span className="font-bold text-[#D4AF37]">{activeHexCount} NODES</span>
         </div>
 
-        <div className="h-4 w-px bg-slate-800" />
+        <div className="h-4 w-[1px] bg-[#D4AF37]/30" />
 
-        <div className="flex items-center gap-2 text-xs font-mono text-slate-300">
-          <CloudRain className="w-3.5 h-3.5 text-blue-400" />
-          <span className="text-slate-400">PRECIP:</span>
-          <span className="font-bold text-white">{rainfallMm} mm/h</span>
+        <div className="flex items-center gap-2 text-xs uppercase tracking-[0.15em] text-[#F2F0E4]">
+          <CloudRain className="w-3.5 h-3.5 text-[#D4AF37]" />
+          <span className="text-[#888888]">PRECIP:</span>
+          <span className="font-bold text-[#F2F0E4]">{rainfallMm} MM/H</span>
         </div>
 
-        <div className="h-4 w-px bg-slate-800" />
+        <div className="h-4 w-[1px] bg-[#D4AF37]/30" />
 
-        <div className="flex items-center gap-2 text-xs font-mono">
-          <Activity className="w-3.5 h-3.5 text-amber-400" />
-          <span className="text-slate-400">AVG STRESS:</span>
-          <span className={`px-2 py-0.5 rounded border text-[11px] font-bold ${badge.bg}`}>
+        <div className="flex items-center gap-2 text-xs uppercase tracking-[0.15em]">
+          <Activity className="w-3.5 h-3.5 text-[#D4AF37]" />
+          <span className="text-[#888888]">NETWORK STRESS:</span>
+          <span className={`px-2 py-0.5 border text-[10px] font-display font-bold tracking-[0.15em] ${badge.bg}`}>
             {avgStress}% • {badge.text}
           </span>
         </div>
       </div>
 
-      {/* Action shortcuts / token status */}
+      {/* Key / Token Setup */}
       <div className="flex items-center gap-2 pointer-events-auto">
         <button
           onClick={onOpenTokenSettings}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono border backdrop-blur-md transition-all ${
+          className={`flex items-center gap-2 px-3.5 py-2 text-xs uppercase tracking-[0.2em] font-body font-bold border transition-all ${
             hasToken
-              ? 'bg-slate-900/80 text-slate-300 border-slate-700 hover:border-cyan-500 hover:text-white'
-              : 'bg-amber-500/20 text-amber-300 border-amber-500/50 hover:bg-amber-500/30 animate-pulse'
+              ? 'bg-[#141414] text-[#F2F0E4] border-[#D4AF37]/60 hover:bg-[#D4AF37] hover:text-[#0A0A0A] hover:border-[#D4AF37]'
+              : 'bg-[#D4AF37] text-[#0A0A0A] border-[#F2E8C4] shadow-[0_0_15px_rgba(212,175,55,0.4)] animate-pulse'
           }`}
           title="Mapbox Configuration"
         >
-          <Zap className="w-3.5 h-3.5 text-cyan-400" />
-          {hasToken ? '3D MAP ACTIVE' : 'SET MAPBOX KEY'}
+          <Key className="w-3.5 h-3.5" />
+          <span>{hasToken ? '3D MESH ACTIVE' : 'SET MAPBOX KEY'}</span>
         </button>
       </div>
     </header>

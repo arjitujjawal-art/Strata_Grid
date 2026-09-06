@@ -266,22 +266,22 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
           'fill-color': [
             'case',
             ['==', ['get', 'isClosed'], 1],
-            '#991b1b', // Red-800 for closed
+            '#7F1D1D', // Art Deco Dark Crimson for closed
             ['>=', ['get', 'stress'], 86],
-            '#ef4444', // Red-500
+            '#991B1B', // Art Deco Ruby Red
             ['>=', ['get', 'stress'], 70],
-            '#f97316', // Orange-500
+            '#C2410C', // Art Deco Bronze
             ['>=', ['get', 'stress'], 45],
-            '#f59e0b', // Amber-500
-            '#10b981' // Emerald-500
+            '#9A7B1C', // Antique Gold
+            '#064E3B'  // Deep Emerald
           ],
           'fill-opacity': [
             'case',
             ['==', ['get', 'isClosed'], 1],
-            0.75,
+            0.80,
             ['>=', ['get', 'stress'], 70],
-            0.55,
-            0.32
+            0.60,
+            0.35
           ]
         }
       });
@@ -292,14 +292,9 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
         type: 'line',
         source: 'h3-grid',
         paint: {
-          'line-color': [
-            'case',
-            ['>=', ['get', 'stress'], 75],
-            '#fda4af',
-            '#06b6d4'
-          ],
+          'line-color': '#D4AF37', // Art Deco Metallic Gold
           'line-width': 1.2,
-          'line-opacity': 0.7
+          'line-opacity': 0.65
         }
       });
 
@@ -442,29 +437,38 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
   };
 
   return (
-    <div className="relative w-full h-screen bg-slate-950 overflow-hidden select-none">
+    <div className="relative w-full h-screen bg-[#0A0A0A] overflow-hidden select-none font-body">
       {/* 3D Mapbox Map Canvas Container */}
       <div ref={mapContainerRef} className="absolute inset-0 w-full h-full" />
 
       {/* Fallback View when Token is missing */}
       {!token && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 bg-slate-950/90 backdrop-blur-xl text-white text-center">
-          <div className="max-w-md space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto text-cyan-400">
-              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 bg-[#0A0A0A]/95 backdrop-blur-md text-[#F2F0E4] text-center deco-crosshatch">
+          <div className="max-w-md deco-panel p-8 space-y-5 border border-[#D4AF37] shadow-[0_0_40px_rgba(212,175,55,0.25)] relative">
+            <div className="corner-tl" />
+            <div className="corner-tr" />
+            <div className="corner-bl" />
+            <div className="corner-br" />
+
+            <div className="w-14 h-14 deco-diamond bg-[#0A0A0A] border border-[#D4AF37] mx-auto shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+              <div className="deco-diamond-inner">
+                <svg className="w-6 h-6 text-[#D4AF37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+              </div>
             </div>
-            <h2 className="text-xl font-bold font-mono">Mapbox 3D Engine Ready</h2>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h2 className="text-lg font-display font-bold text-[#F2F0E4] tracking-[0.2em] uppercase">
+              MAPBOX 3D ENGINE STANDING BY
+            </h2>
+            <p className="text-xs text-[#888888] leading-relaxed tracking-wide">
               To render the interactive 3D terrain, building extrusions, and live H3 hex spatial mesh over Pune,
               please provide your free Mapbox public token.
             </p>
             <button
               onClick={() => setIsTokenModalOpen(true)}
-              className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-mono font-bold text-xs rounded-xl shadow-lg shadow-cyan-500/25 transition-all"
+              className="deco-btn-solid px-6 py-3 text-xs tracking-[0.2em] uppercase cursor-pointer"
             >
-              Configure Mapbox Token
+              CONFIGURE ACCESS KEY
             </button>
           </div>
         </div>

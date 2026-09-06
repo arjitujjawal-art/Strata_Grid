@@ -1,6 +1,7 @@
 import React from 'react';
-import { Hexagon, Radio, Shield, Github } from 'lucide-react';
+import { Hexagon } from 'lucide-react';
 import { PageId } from '../types';
+import { DecoCorners } from './common/DecoCorners';
 
 interface FooterProps {
   onSelectPage?: (page: PageId) => void;
@@ -16,40 +17,86 @@ export const Footer: React.FC<FooterProps> = ({ onSelectPage }) => {
   };
 
   return (
-    <footer className="bg-[#070d1a] border-t border-slate-800/80 py-10 px-4 sm:px-6 lg:px-8 font-mono text-xs">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Top bar with telemetry status */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-              <Hexagon className="w-4 h-4" />
+    <footer className="bg-[#0A0A0A] border-t-2 border-[#D4AF37] py-12 px-4 sm:px-6 lg:px-8 font-body text-xs select-none relative deco-crosshatch">
+      {/* Top micro gold line */}
+      <div className="absolute top-[-4px] left-0 right-0 h-[1px] bg-[#D4AF37]/40" />
+
+      <div className="max-w-7xl mx-auto space-y-8 relative z-10">
+        {/* Ceremonial Marquee Telemetry Status Box */}
+        <div className="deco-panel p-5 flex flex-col sm:flex-row items-center justify-between gap-4 relative">
+          <DecoCorners />
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 deco-diamond bg-[#0A0A0A] border border-[#D4AF37]">
+              <div className="deco-diamond-inner">
+                <Hexagon className="w-4 h-4 text-[#D4AF37]" />
+              </div>
             </div>
             <div>
-              <span className="text-white font-bold block">StrataGrid AI Telemetry Mesh</span>
-              <span className="text-[10px] text-slate-400">Pune Metro H3 Spatial Resolution-8 Dynamic Engine</span>
+              <span className="font-display text-sm tracking-[0.2em] text-[#F2F0E4] font-bold block uppercase">
+                STRATAGRID AI TELEMETRY MESH
+              </span>
+              <span className="text-[10px] font-body uppercase tracking-[0.2em] text-[#888888]">
+                PUNE METROPOLITAN H3 SPATIAL RESOLUTION VIII DYNAMIC KERNEL
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-[11px]">
-            <span className="flex items-center gap-1.5 text-cyan-400">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-              320+ Spatial Nodes Active
+          <div className="flex items-center gap-4 text-[11px] font-body tracking-[0.15em]">
+            <span className="flex items-center gap-2 text-[#D4AF37] font-semibold">
+              <span className="w-2 h-2 bg-[#D4AF37] rotate-45 animate-pulse" />
+              320+ SPATIAL NODES SYNCHRONIZED
             </span>
-            <span className="text-slate-600">|</span>
-            <span className="text-slate-400">Edge Latency: 12ms</span>
+            <span className="text-[#D4AF37]/50">•</span>
+            <span className="text-[#888888]">EDGE LATENCY: 12ms</span>
           </div>
         </div>
 
-        {/* Footer links & copyright */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-[11px] pt-2">
-          <p>© {new Date().getFullYear()} StrataGrid AI. Built for Smart City Hackathon.</p>
-          <div className="flex flex-wrap items-center gap-5 text-slate-400">
-            <button onClick={(e) => handleClick('home', e)} className="hover:text-cyan-400 transition-colors cursor-pointer">Overview</button>
-            <button onClick={(e) => handleClick('dashboard', e)} className="hover:text-cyan-400 transition-colors cursor-pointer">3D Command Mesh</button>
-            <button onClick={(e) => handleClick('pipeline', e)} className="hover:text-cyan-400 transition-colors cursor-pointer">8-Stage Architecture</button>
-            <button onClick={(e) => handleClick('case-studies', e)} className="hover:text-cyan-400 transition-colors cursor-pointer">Case Studies</button>
-            <button onClick={(e) => handleClick('gallery', e)} className="hover:text-cyan-400 transition-colors cursor-pointer">Sensor Scans</button>
-            <button onClick={(e) => handleClick('team', e)} className="hover:text-cyan-400 transition-colors cursor-pointer">Team</button>
+        {/* Footer Navigation Links & Seal */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-[#888888] text-[11px] tracking-[0.2em] pt-4 border-t border-[#D4AF37]/20 uppercase">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 border border-[#D4AF37] rotate-45" />
+            <p className="text-[#888888]">
+              MMXXVI STRATAGRID AI • MUNICIPAL CIVIL INFRASTRUCTURE
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-6 text-[#F2F0E4]/80">
+            <button
+              onClick={(e) => handleClick('home', e)}
+              className="hover:text-[#D4AF37] transition-colors cursor-pointer"
+            >
+              OVERVIEW
+            </button>
+            <button
+              onClick={(e) => handleClick('dashboard', e)}
+              className="hover:text-[#D4AF37] transition-colors cursor-pointer"
+            >
+              3D MESH
+            </button>
+            <button
+              onClick={(e) => handleClick('pipeline', e)}
+              className="hover:text-[#D4AF37] transition-colors cursor-pointer"
+            >
+              ARCHITECTURE
+            </button>
+            <button
+              onClick={(e) => handleClick('case-studies', e)}
+              className="hover:text-[#D4AF37] transition-colors cursor-pointer"
+            >
+              PILOTS
+            </button>
+            <button
+              onClick={(e) => handleClick('gallery', e)}
+              className="hover:text-[#D4AF37] transition-colors cursor-pointer"
+            >
+              PROFILOMETRY
+            </button>
+            <button
+              onClick={(e) => handleClick('team', e)}
+              className="hover:text-[#D4AF37] transition-colors cursor-pointer"
+            >
+              FELLOWSHIP
+            </button>
           </div>
         </div>
       </div>

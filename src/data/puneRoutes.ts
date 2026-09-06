@@ -7,7 +7,7 @@ export const PUNE_ROUTES: GeoRouteOption[] = [
     name: 'GPS Shortest Path (Conventional / Selfish)',
     type: 'selfish',
     corridor: 'hinjewadi_shivajinagar',
-    color: '#ef4444', // Red-500
+    color: '#991B1B', // Art Deco Ruby
     durationMin: 42,
     distanceKm: 18.2,
     avgStress: 88,
@@ -37,7 +37,7 @@ export const PUNE_ROUTES: GeoRouteOption[] = [
     name: 'StrataGrid Cooperative Load-Balanced Corridor',
     type: 'cooperative',
     corridor: 'hinjewadi_shivajinagar',
-    color: '#06b6d4', // Cyan-500
+    color: '#D4AF37', // Art Deco Metallic Gold
     durationMin: 38,
     distanceKm: 20.4,
     avgStress: 34,
@@ -67,7 +67,7 @@ export const PUNE_ROUTES: GeoRouteOption[] = [
     name: 'Direct Urban Cut-Through (Heavy Freight Violation)',
     type: 'selfish',
     corridor: 'pcmc_freight',
-    color: '#f97316', // Orange-500
+    color: '#7F1D1D', // Art Deco Deep Crimson
     durationMin: 55,
     distanceKm: 24.1,
     avgStress: 93,
@@ -96,7 +96,7 @@ export const PUNE_ROUTES: GeoRouteOption[] = [
     name: 'StrataGrid Heavy-Freight Ring Bypass',
     type: 'cooperative',
     corridor: 'pcmc_freight',
-    color: '#10b981', // Emerald-500
+    color: '#D4AF37', // Art Deco Metallic Gold
     durationMin: 48,
     distanceKm: 29.8,
     avgStress: 28,

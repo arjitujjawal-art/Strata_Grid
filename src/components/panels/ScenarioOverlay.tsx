@@ -1,6 +1,7 @@
 import React from 'react';
-import { Play, Square, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
+import { Square, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
 import { DemoScenarioStep } from '../../types';
+import { DecoCorners } from '../common/DecoCorners';
 
 interface ScenarioOverlayProps {
   currentStep: DemoScenarioStep;
@@ -13,6 +14,8 @@ interface ScenarioOverlayProps {
   onGoToStep: (idx: number) => void;
 }
 
+const ROMAN_STEPS = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+
 export const ScenarioOverlay: React.FC<ScenarioOverlayProps> = ({
   currentStep,
   currentStepIndex,
@@ -24,73 +27,86 @@ export const ScenarioOverlay: React.FC<ScenarioOverlayProps> = ({
   onGoToStep
 }) => {
   return (
-    <div className="absolute top-18 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-2xl pointer-events-auto transition-all animate-in fade-in slide-in-from-top-4 duration-300">
-      <div className="bg-slate-950/95 backdrop-blur-xl border border-cyan-500/50 rounded-2xl p-4 shadow-2xl shadow-cyan-950/70 text-white relative overflow-hidden">
-        {/* Glowing top accent line */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse" />
+    <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 w-[94%] max-w-2xl pointer-events-auto select-none font-body transition-all animate-in fade-in duration-300">
+      <div className="bg-[#141414]/95 backdrop-blur-xl border border-[#D4AF37] p-5 shadow-[0_0_35px_rgba(0,0,0,0.9)] text-[#F2F0E4] relative">
+        <DecoCorners />
 
-        <div className="flex items-start justify-between gap-3">
+        {/* Top gold accent line with diamond */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2">
+          <div className="w-12 h-[1px] bg-[#D4AF37]" />
+          <div className="w-2 h-2 bg-[#D4AF37] rotate-45" />
+          <div className="w-12 h-[1px] bg-[#D4AF37]" />
+        </div>
+
+        <div className="flex items-start justify-between gap-4 pt-1">
           <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-cyan-400" />
-                {currentStep.phase}
+            <div className="flex items-center gap-3">
+              <span className="bg-[#0A0A0A] text-[#D4AF37] border border-[#D4AF37] text-[9px] font-display font-bold px-3 py-0.5 uppercase tracking-[0.25em]">
+                PHASE {ROMAN_STEPS[currentStepIndex] || currentStepIndex + 1} OF VI
               </span>
-              <span className="text-xs font-mono text-slate-400">DEMO NARRATIVE PLAYTHROUGH</span>
+              <span className="text-[9px] uppercase font-body tracking-[0.2em] text-[#888888]">
+                DEMO NARRATIVE PLAYTHROUGH
+              </span>
             </div>
 
-            <h3 className="text-base font-bold text-white mt-1.5 leading-snug">{currentStep.title}</h3>
-            <p className="text-xs text-slate-300 mt-1 leading-relaxed">{currentStep.caption}</p>
+            <h3 className="text-base sm:text-lg font-display font-bold text-[#F2F0E4] mt-2 leading-snug tracking-[0.1em] uppercase">
+              {currentStep.title}
+            </h3>
+            <p className="text-xs font-body text-[#F2F0E4]/80 mt-1.5 leading-relaxed tracking-wide">
+              {currentStep.caption}
+            </p>
           </div>
 
           {/* Player controls */}
-          <div className="flex flex-col items-end gap-2">
-            <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
-              <button
-                onClick={onPrev}
-                disabled={currentStepIndex === 0}
-                className="p-1 rounded text-slate-400 hover:text-white disabled:opacity-30 transition-colors"
-                title="Previous step"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
+          <div className="flex items-center gap-1.5 bg-[#0A0A0A] p-1 border border-[#D4AF37]/50">
+            <button
+              onClick={onPrev}
+              disabled={currentStepIndex === 0}
+              className="p-1.5 text-[#888888] hover:text-[#D4AF37] disabled:opacity-30 transition-colors cursor-pointer"
+              title="Previous phase"
+              aria-label="Previous Phase"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
 
-              <button
-                onClick={onStop}
-                className="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-lg text-[10px] font-mono font-bold flex items-center gap-1 transition-all"
-                title="Stop auto-play"
-              >
-                <Square className="w-3 h-3 fill-rose-300" />
-                STOP
-              </button>
+            <button
+              onClick={onStop}
+              className="px-2.5 py-1 bg-[#991B1B] hover:bg-[#B91C1C] text-[#F2E8C4] text-[9px] font-display font-bold tracking-[0.2em] uppercase flex items-center gap-1 transition-all cursor-pointer"
+              title="Halt playback"
+            >
+              <Square className="w-3 h-3 fill-[#F2E8C4]" />
+              HALT
+            </button>
 
-              <button
-                onClick={onNext}
-                disabled={currentStepIndex === totalSteps - 1}
-                className="p-1 rounded text-slate-400 hover:text-white disabled:opacity-30 transition-colors"
-                title="Next step"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
+            <button
+              onClick={onNext}
+              disabled={currentStepIndex === totalSteps - 1}
+              className="p-1.5 text-[#888888] hover:text-[#D4AF37] disabled:opacity-30 transition-colors cursor-pointer"
+              title="Next phase"
+              aria-label="Next Phase"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
-        {/* Step progress pills */}
-        <div className="grid grid-cols-6 gap-1.5 mt-3 pt-2.5 border-t border-slate-800/80">
+        {/* Roman Numeral Step Buttons */}
+        <div className="grid grid-cols-6 gap-2 mt-4 pt-3 border-t border-[#D4AF37]/30">
           {Array.from({ length: totalSteps }).map((_, idx) => (
             <button
               key={idx}
               onClick={() => onGoToStep(idx)}
-              className={`h-1.5 rounded-full transition-all ${
+              className={`h-6 text-[9px] font-display font-bold transition-all border cursor-pointer uppercase tracking-wider flex items-center justify-center ${
                 idx === currentStepIndex
-                  ? 'bg-cyan-400 shadow-md shadow-cyan-400/50 scale-y-125'
+                  ? 'bg-[#D4AF37] text-[#0A0A0A] border-[#D4AF37] shadow-[0_0_12px_rgba(212,175,55,0.5)]'
                   : idx < currentStepIndex
-                  ? 'bg-cyan-600/60'
-                  : 'bg-slate-800 hover:bg-slate-700'
+                  ? 'bg-[#141414] text-[#D4AF37] border-[#D4AF37]/50'
+                  : 'bg-[#0A0A0A] text-[#888888] border-[#D4AF37]/20 hover:border-[#D4AF37]/50'
               }`}
-              title={`Step ${idx + 1}`}
-            />
+              title={`Phase ${ROMAN_STEPS[idx]}`}
+            >
+              {ROMAN_STEPS[idx]}
+            </button>
           ))}
         </div>
       </div>

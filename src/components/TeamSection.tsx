@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { INITIAL_TEAM_MEMBERS } from '../data/mockData';
 import { TeamMember } from '../types';
-import { Users, Github, Linkedin, Mail, Sparkles, Award, Edit2, Check, X, ShieldCheck, Camera, UploadCloud, RotateCcw } from 'lucide-react';
+import { Users, Github, Linkedin, Edit2, Check, ShieldCheck, Camera, UploadCloud, RotateCcw } from 'lucide-react';
+import { DecoCorners } from './common/DecoCorners';
 
 const STORAGE_KEY = 'stratagrid_custom_team_members';
 
@@ -93,30 +94,33 @@ export const TeamSection: React.FC = () => {
   };
 
   return (
-    <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 animate-fadeIn text-slate-200">
+    <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-10 animate-fadeIn text-[#F2F0E4]">
       
       {/* Team Header Sub-Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-[#00f5ff]" />
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#00f5ff]">
-              Core Engineering & Research Team
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#D4AF37]/30 pb-5">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2.5">
+            <span className="w-2 h-2 bg-[#D4AF37] rotate-45" />
+            <span className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
+              Foundational Research & Systems Architecture
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <h2 className="text-2xl sm:text-3xl font-display font-bold text-[#F2E8C4] uppercase tracking-[0.16em]">
+            The Engineering Directorate
+          </h2>
+          <p className="text-xs sm:text-sm text-[#888888] font-body max-w-3xl leading-relaxed">
             Multidisciplinary architects bridging distributed systems, discrete spatial computing, finite-element asphalt physics, and geotechnical hydrology.
           </p>
         </div>
         <div className="flex items-center gap-3 self-start sm:self-auto">
           {uploadFeedback && (
-            <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400 bg-emerald-950/60 px-3 py-1.5 rounded-xl border border-emerald-500/30 animate-fadeIn">
+            <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400 bg-[#064E3B]/60 px-3 py-1.5 border border-emerald-500/40 animate-fadeIn">
               <Check className="w-3.5 h-3.5" />
               <span>{uploadFeedback}</span>
             </div>
           )}
-          <div className="flex items-center gap-2 text-xs font-mono text-slate-400 bg-[#161b22] px-3.5 py-1.5 rounded-xl border border-slate-800">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <div className="flex items-center gap-2 text-xs font-mono text-[#D4AF37] bg-[#0A0A0A] px-4 py-2 border border-[#D4AF37]/40 uppercase tracking-wider">
+            <ShieldCheck className="w-4 h-4 text-[#D4AF37]" />
             <span>{members.length} Active Contributors</span>
           </div>
         </div>
@@ -133,14 +137,16 @@ export const TeamSection: React.FC = () => {
           return (
             <div
               key={member.id}
-              className="bg-[#161b22] rounded-2xl border border-slate-700/80 p-6 flex flex-col justify-between shadow-xl space-y-4 hover:border-[#00f5ff]/50 transition-all duration-300 group relative"
+              className="deco-panel p-6 flex flex-col justify-between shadow-[0_0_20px_rgba(212,175,55,0.08)] space-y-5 hover:border-[#D4AF37] hover:shadow-[0_0_25px_rgba(212,175,55,0.25)] transition-all duration-300 group relative"
             >
+              <DecoCorners />
+
               <div className="space-y-4">
                 
                 {/* Photo & Actions Header */}
                 <div className="flex items-start justify-between gap-3">
                   
-                  {/* Hidden File Input for this specific team member slot */}
+                  {/* Hidden File Input */}
                   <input
                     type="file"
                     accept="image/*"
@@ -151,12 +157,11 @@ export const TeamSection: React.FC = () => {
                       if (file) {
                         handleImageFile(member.id, file);
                       }
-                      // Reset target value so selecting the same file triggers change again
                       e.target.value = '';
                     }}
                   />
 
-                  {/* Circular Avatar Frame with Hover Overlay & Drag-Drop */}
+                  {/* Sharp Double-Framed Avatar Frame */}
                   <div
                     id={`team-avatar-${member.id}`}
                     onClick={() => triggerFileInput(member.id)}
@@ -173,26 +178,26 @@ export const TeamSection: React.FC = () => {
                         handleImageFile(member.id, file);
                       }
                     }}
-                    title="Click or drag & drop to upload a new photo"
-                    className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 bg-slate-900 shrink-0 shadow-xl cursor-pointer relative transition-all duration-300 ${
+                    title="Click or drag & drop to upload a new portrait"
+                    className={`w-20 h-20 sm:w-24 sm:h-24 overflow-hidden border-2 bg-black shrink-0 cursor-pointer relative transition-all duration-300 ${
                       isDragOver
-                        ? 'border-[#00f5ff] ring-4 ring-[#00f5ff]/30 scale-105'
-                        : 'border-slate-600 hover:border-[#00f5ff] hover:shadow-[#00f5ff]/20'
+                        ? 'border-[#F2E8C4] shadow-[0_0_20px_rgba(242,232,196,0.6)] scale-105'
+                        : 'border-[#D4AF37] hover:border-[#F2E8C4] hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]'
                     }`}
                   >
-                    {/* Centered, Auto-Cropped Circular Photo */}
+                    {/* Centered, Auto-Cropped Photo */}
                     <img
                       src={member.avatarUrl}
                       alt={member.name}
-                      className="w-full h-full object-cover object-center aspect-square rounded-full transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-full object-cover object-center aspect-square transition-transform duration-300 group-hover:scale-105"
                       referrerPolicy="no-referrer"
                     />
 
                     {/* Camera Overlay on Hover */}
-                    <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px] opacity-0 hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity duration-200 rounded-full">
-                      <Camera className="w-5 h-5 text-[#00f5ff] mb-0.5" />
-                      <span className="text-[9px] font-mono tracking-tight font-bold text-slate-200">
-                        Change
+                    <div className="absolute inset-0 bg-black/75 opacity-0 hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity duration-200">
+                      <Camera className="w-5 h-5 text-[#D4AF37] mb-1" />
+                      <span className="text-[9px] font-mono tracking-widest uppercase font-bold text-[#F2E8C4]">
+                        Replace
                       </span>
                     </div>
                   </div>
@@ -201,25 +206,25 @@ export const TeamSection: React.FC = () => {
                   <div className="flex flex-col items-end gap-1.5">
                     <button
                       onClick={() => isEditing ? handleSaveEdit(member.id) : handleStartEdit(member)}
-                      className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-[#00f5ff] transition-colors shadow-sm"
+                      className="p-2 bg-[#0A0A0A] hover:bg-[#1C1C1C] text-[#888888] hover:text-[#D4AF37] border border-[#D4AF37]/30 hover:border-[#D4AF37] transition-colors cursor-pointer"
                       title={isEditing ? 'Save Details' : 'Edit Details'}
                     >
-                      {isEditing ? <Check className="w-4 h-4 text-emerald-400" /> : <Edit2 className="w-4 h-4" />}
+                      {isEditing ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Edit2 className="w-3.5 h-3.5" />}
                     </button>
 
                     <button
                       onClick={() => triggerFileInput(member.id)}
-                      className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-[#00f5ff] transition-colors text-xs"
-                      title="Upload custom headshot photo"
+                      className="p-2 bg-[#0A0A0A] hover:bg-[#1C1C1C] text-[#888888] hover:text-[#D4AF37] border border-[#D4AF37]/30 hover:border-[#D4AF37] transition-colors cursor-pointer text-xs"
+                      title="Upload custom portrait photo"
                     >
-                      <UploadCloud className="w-4 h-4" />
+                      <UploadCloud className="w-3.5 h-3.5" />
                     </button>
 
                     {hasCustomPhoto && (
                       <button
                         onClick={() => handleResetPhoto(member.id)}
-                        className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors text-[10px]"
-                        title="Revert to original photo"
+                        className="p-1.5 bg-rose-950/30 hover:bg-rose-900/50 text-rose-400 border border-rose-500/30 transition-colors text-[10px] cursor-pointer"
+                        title="Revert to original portrait"
                       >
                         <RotateCcw className="w-3 h-3" />
                       </button>
@@ -229,7 +234,7 @@ export const TeamSection: React.FC = () => {
 
                 {/* Name & Role Text Fields */}
                 <div className="space-y-1">
-                  <h4 className="font-headline font-bold text-white text-lg group-hover:text-[#00f5ff] transition-colors leading-snug">
+                  <h4 className="font-display font-bold text-[#F2E8C4] text-lg group-hover:text-[#D4AF37] transition-colors uppercase tracking-wider leading-snug">
                     {member.name}
                   </h4>
                   
@@ -238,17 +243,17 @@ export const TeamSection: React.FC = () => {
                       type="text"
                       value={editRole}
                       onChange={(e) => setEditRole(e.target.value)}
-                      className="w-full mt-1 p-1.5 rounded-lg bg-[#0d1117] border border-[#00f5ff] text-xs font-mono text-[#00f5ff] focus:outline-none"
+                      className="w-full mt-1 p-2 bg-[#0A0A0A] border border-[#D4AF37] text-xs font-mono text-[#D4AF37] focus:outline-none"
                     />
                   ) : (
-                    <span className="text-xs font-mono text-[#00f5ff] font-semibold block">
+                    <span className="text-xs font-mono text-[#D4AF37] font-semibold block uppercase tracking-wider">
                       {member.role}
                     </span>
                   )}
 
-                  <div className="pt-1">
-                    <span className="text-[11px] font-mono text-slate-400 block bg-[#0d1117] px-2.5 py-1.5 rounded-lg border border-slate-800 leading-relaxed">
-                      <strong className="text-slate-300">Specialty:</strong> {member.specialty}
+                  <div className="pt-2">
+                    <span className="text-[11px] font-mono text-[#888888] block bg-[#0A0A0A] px-2.5 py-1.5 border border-[#D4AF37]/20 leading-relaxed">
+                      <strong className="text-[#D4AF37] uppercase tracking-wider">Domain:</strong> {member.specialty}
                     </span>
                   </div>
                 </div>
@@ -259,24 +264,24 @@ export const TeamSection: React.FC = () => {
                     rows={4}
                     value={editBio}
                     onChange={(e) => setEditBio(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-[#0d1117] border border-[#00f5ff] text-xs text-slate-200 font-sans focus:outline-none leading-relaxed"
+                    className="w-full p-2.5 bg-[#0A0A0A] border border-[#D4AF37] text-xs text-[#F2F0E4] font-body focus:outline-none leading-relaxed"
                   />
                 ) : (
-                  <p className="text-xs text-slate-300 font-sans leading-relaxed line-clamp-4">
+                  <p className="text-xs text-[#F2F0E4]/80 font-body leading-relaxed line-clamp-4 tracking-wide">
                     {member.bio}
                   </p>
                 )}
               </div>
 
               {/* Card Footer with Social Links and Core Badge */}
-              <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-mono text-slate-400">
+              <div className="pt-4 border-t border-[#D4AF37]/20 flex items-center justify-between text-xs font-mono text-[#888888]">
                 <div className="flex items-center gap-3">
                   {member.github && (
                     <a
                       href={member.github}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-white transition-colors p-1 rounded hover:bg-slate-800"
+                      className="hover:text-[#D4AF37] transition-colors p-1 border border-transparent hover:border-[#D4AF37]/40"
                       title="GitHub Profile"
                     >
                       <Github className="w-4 h-4" />
@@ -287,15 +292,15 @@ export const TeamSection: React.FC = () => {
                       href={member.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-[#00f5ff] transition-colors p-1 rounded hover:bg-slate-800"
+                      className="hover:text-[#D4AF37] transition-colors p-1 border border-transparent hover:border-[#D4AF37]/40"
                       title="LinkedIn Profile"
                     >
                       <Linkedin className="w-4 h-4" />
                     </a>
                   )}
                 </div>
-                <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-bold">
-                  Verified Core
+                <span className="text-[10px] text-[#D4AF37] bg-[#D4AF37]/10 px-2 py-0.5 border border-[#D4AF37]/30 font-bold uppercase tracking-wider">
+                  Core Architect
                 </span>
               </div>
             </div>
@@ -305,4 +310,3 @@ export const TeamSection: React.FC = () => {
     </div>
   );
 };
-

@@ -14,11 +14,11 @@ import {
   Droplets, 
   Truck,
   ArrowRight,
-  RefreshCw,
-  Eye
+  RefreshCw
 } from 'lucide-react';
 import { CaseStudy, GalleryItem } from '../types';
 import { saveVerifiedCaseStudy } from '../utils/caseStudiesStorage';
+import { DecoCorners } from './common/DecoCorners';
 
 interface AddCaseStudyModalProps {
   isOpen: boolean;
@@ -170,40 +170,43 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto animate-fadeIn">
-      <div className="bg-[#121720] border border-slate-700/80 rounded-2xl w-full max-w-4xl max-h-[92vh] overflow-hidden shadow-2xl flex flex-col my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md overflow-y-auto animate-fadeIn">
+      <div className="bg-[#141414] border-2 border-[#D4AF37] w-full max-w-4xl max-h-[92vh] overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.25)] flex flex-col my-auto relative">
+        <DecoCorners />
         
         {/* Modal Header */}
-        <div className="p-5 sm:p-6 border-b border-slate-800 flex items-center justify-between bg-[#161d28]/70">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+        <div className="p-5 sm:p-6 border-b border-[#D4AF37]/30 flex items-center justify-between bg-[#0A0A0A]">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 bg-[#D4AF37]/15 border border-[#D4AF37] flex items-center justify-center text-[#D4AF37]">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-mono font-bold uppercase tracking-wider">
+                <span className="px-2.5 py-0.5 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] font-mono font-bold uppercase tracking-[0.2em]">
                   AI Forensic Engine
                 </span>
-                <span className="text-xs font-mono text-slate-400">Pavement Quality Validation</span>
+                <span className="text-xs font-mono text-[#888888] uppercase tracking-wider">
+                  Pavement Quality Validation
+                </span>
               </div>
-              <h3 className="text-xl font-headline font-bold text-white mt-0.5">
+              <h3 className="text-xl sm:text-2xl font-display font-bold text-[#F2E8C4] uppercase tracking-[0.16em] mt-0.5">
                 Submit Road Quality Case Study
               </h3>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className="p-2 bg-[#0A0A0A] hover:bg-[#1C1C1C] text-[#888888] hover:text-[#F2E8C4] border border-[#D4AF37]/30 hover:border-[#D4AF37] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 sm:p-6 overflow-y-auto space-y-6 flex-1 text-slate-200">
+        <div className="p-6 sm:p-8 overflow-y-auto space-y-6 flex-1 text-[#F2F0E4]">
           
           {errorMsg && (
-            <div className="p-4 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs font-mono flex items-center gap-3">
+            <div className="p-4 bg-rose-950/40 border border-rose-500/50 text-rose-300 text-xs font-mono flex items-center gap-3">
               <AlertTriangle className="w-5 h-5 shrink-0" />
               <span>{errorMsg}</span>
             </div>
@@ -214,14 +217,14 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
               
               {/* SECTION 1: Location & Classification */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#00f5ff] uppercase tracking-wider border-b border-slate-800/80 pb-2">
-                  <Layers className="w-4 h-4" />
-                  <span>1. Corridor & Field Location Details</span>
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#D4AF37] uppercase tracking-[0.2em] border-b border-[#D4AF37]/20 pb-2">
+                  <Layers className="w-4 h-4 text-[#D4AF37]" />
+                  <span>I. Corridor & Field Location Details</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-mono text-slate-300 font-bold block">
+                    <label className="text-xs font-body font-bold text-[#D4AF37] uppercase tracking-[0.15em] block">
                       Case Study Title *
                     </label>
                     <input
@@ -230,12 +233,12 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="e.g. Grand Ave Viaduct Deck Spalling & Rutting Study"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#0d1117] border border-slate-700 text-white placeholder:text-slate-500 text-xs focus:outline-none focus:border-[#00f5ff] transition-all"
+                      className="w-full px-3.5 py-2.5 bg-[#0A0A0A] border border-[#D4AF37]/40 text-[#F2F0E4] placeholder:text-[#888888] text-xs font-body focus:outline-none focus:border-[#D4AF37] transition-all"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-mono text-slate-300 font-bold block">
+                    <label className="text-xs font-body font-bold text-[#D4AF37] uppercase tracking-[0.15em] block">
                       Location / District *
                     </label>
                     <input
@@ -244,20 +247,20 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       placeholder="e.g. Metropolis Civic Corridor, Sector 7-B"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#0d1117] border border-slate-700 text-white placeholder:text-slate-500 text-xs focus:outline-none focus:border-[#00f5ff] transition-all"
+                      className="w-full px-3.5 py-2.5 bg-[#0A0A0A] border border-[#D4AF37]/40 text-[#F2F0E4] placeholder:text-[#888888] text-xs font-body focus:outline-none focus:border-[#D4AF37] transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-mono text-slate-300 font-bold block">
+                    <label className="text-xs font-body font-bold text-[#D4AF37] uppercase tracking-[0.15em] block">
                       Road Classification
                     </label>
                     <select
                       value={roadType}
                       onChange={(e) => setRoadType(e.target.value as any)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#0d1117] border border-slate-700 text-white text-xs focus:outline-none focus:border-[#00f5ff] transition-all"
+                      className="w-full px-3.5 py-2.5 bg-[#0A0A0A] border border-[#D4AF37]/40 text-[#F2F0E4] text-xs font-body uppercase tracking-wider focus:outline-none focus:border-[#D4AF37] transition-all"
                     >
                       <option value="arterial">Major Arterial Road</option>
                       <option value="highway">High-Speed Highway / Expressway</option>
@@ -268,7 +271,7 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-mono text-slate-300 font-bold block">
+                    <label className="text-xs font-body font-bold text-[#D4AF37] uppercase tracking-[0.15em] block">
                       Pilot Duration / Timeframe
                     </label>
                     <input
@@ -276,7 +279,7 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                       value={timeframe}
                       onChange={(e) => setTimeframe(e.target.value)}
                       placeholder="e.g. 6-Month Field Pilot"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#0d1117] border border-slate-700 text-white placeholder:text-slate-500 text-xs focus:outline-none focus:border-[#00f5ff] transition-all"
+                      className="w-full px-3.5 py-2.5 bg-[#0A0A0A] border border-[#D4AF37]/40 text-[#F2F0E4] placeholder:text-[#888888] text-xs font-body focus:outline-none focus:border-[#D4AF37] transition-all"
                     />
                   </div>
                 </div>
@@ -284,15 +287,15 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
 
               {/* SECTION 2: Road Quality Photo & Distress Capture */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#00f5ff] uppercase tracking-wider border-b border-slate-800/80 pb-2">
-                  <ImageIcon className="w-4 h-4" />
-                  <span>2. Road Quality Photo & Visual Distress Capture</span>
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#D4AF37] uppercase tracking-[0.2em] border-b border-[#D4AF37]/20 pb-2">
+                  <ImageIcon className="w-4 h-4 text-[#D4AF37]" />
+                  <span>II. Road Quality Photo & Visual Distress Capture</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                   {/* Photo Preview / Upload Area */}
                   <div className="md:col-span-6 space-y-3">
-                    <div className="relative h-44 rounded-xl border border-slate-700 bg-black overflow-hidden flex items-center justify-center group">
+                    <div className="relative h-44 border border-[#D4AF37]/40 bg-black overflow-hidden flex items-center justify-center group">
                       {imageData ? (
                         <>
                           <img
@@ -301,24 +304,24 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                             className="w-full h-full object-cover"
                             referrerPolicy="no-referrer"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-3">
-                            <span className="text-[10px] font-mono text-emerald-400 font-bold flex items-center gap-1.5 bg-black/60 px-2 py-1 rounded">
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-3">
+                            <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-300 font-bold flex items-center gap-1.5 bg-black/80 px-2.5 py-1 border border-emerald-500/40">
                               <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                               Ready for Forensic Scan
                             </span>
                           </div>
                         </>
                       ) : (
-                        <div className="text-center p-4 text-slate-500">
+                        <div className="text-center p-4 text-[#888888]">
                           <Upload className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                          <p className="text-xs">No image attached</p>
+                          <p className="text-xs font-mono">No image attached</p>
                         </div>
                       )}
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <label className="flex-1 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-mono font-bold border border-slate-700 text-center cursor-pointer transition-colors flex items-center justify-center gap-1.5">
-                        <Upload className="w-3.5 h-3.5 text-[#00f5ff]" />
+                      <label className="flex-1 px-4 py-2.5 bg-[#0A0A0A] hover:bg-[#1C1C1C] text-[#D4AF37] hover:text-[#F2E8C4] text-xs font-body uppercase tracking-[0.15em] font-bold border border-[#D4AF37]/50 text-center cursor-pointer transition-colors flex items-center justify-center gap-2">
+                        <Upload className="w-3.5 h-3.5 text-[#D4AF37]" />
                         <span>Upload Custom Photo</span>
                         <input
                           type="file"
@@ -332,7 +335,7 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
 
                   {/* Preset Geotechnical Photos Quick-Select */}
                   <div className="md:col-span-6 space-y-2">
-                    <label className="text-[11px] font-mono text-slate-400 block">
+                    <label className="text-[11px] font-mono text-[#888888] uppercase tracking-wider block">
                       Or select a benchmark road distress sample:
                     </label>
                     <div className="grid grid-cols-2 gap-2">
@@ -341,16 +344,16 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                           type="button"
                           key={idx}
                           onClick={() => handleSelectPreset(preset)}
-                          className={`p-2 rounded-xl border text-left text-xs transition-all cursor-pointer flex flex-col justify-between h-20 ${
+                          className={`p-2.5 border text-left text-xs transition-all cursor-pointer flex flex-col justify-between h-20 ${
                             imageData === preset.url
-                              ? 'bg-emerald-500/10 border-emerald-500/60 text-white'
-                              : 'bg-[#0d1117] border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                              ? 'bg-[#D4AF37]/15 border-[#D4AF37] text-white shadow-[0_0_10px_rgba(212,175,55,0.3)]'
+                              : 'bg-[#0A0A0A] border-[#D4AF37]/30 text-[#888888] hover:border-[#D4AF37] hover:text-[#F2E8C4]'
                           }`}
                         >
-                          <span className="font-semibold line-clamp-2 text-[11px] leading-tight text-white">
+                          <span className="font-display font-semibold line-clamp-2 text-[11px] leading-tight text-[#F2E8C4]">
                             {preset.title}
                           </span>
-                          <span className="text-[10px] font-mono text-[#00f5ff] uppercase mt-1">
+                          <span className="text-[10px] font-mono text-[#D4AF37] uppercase mt-1">
                             {preset.type}
                           </span>
                         </button>
@@ -362,13 +365,13 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
 
               {/* SECTION 3: Geotechnical Distress & Structural Claims */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#00f5ff] uppercase tracking-wider border-b border-slate-800/80 pb-2">
-                  <Activity className="w-4 h-4" />
-                  <span>3. Pavement Distress Claim & Telemetry Variables</span>
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#D4AF37] uppercase tracking-[0.2em] border-b border-[#D4AF37]/20 pb-2">
+                  <Activity className="w-4 h-4 text-[#D4AF37]" />
+                  <span>III. Pavement Distress Claim & Telemetry Variables</span>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-mono text-slate-300 font-bold block">
+                  <label className="text-xs font-body font-bold text-[#D4AF37] uppercase tracking-[0.15em] block">
                     Observed Pavement Quality & Distress Claim *
                   </label>
                   <input
@@ -377,12 +380,12 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                     value={pavementConditionClaim}
                     onChange={(e) => setPavementConditionClaim(e.target.value)}
                     placeholder="e.g. Longitudinal rutting with 65mm pothole and subgrade moisture pumping"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#0d1117] border border-slate-700 text-white placeholder:text-slate-500 text-xs focus:outline-none focus:border-[#00f5ff] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-[#0A0A0A] border border-[#D4AF37]/40 text-[#F2F0E4] placeholder:text-[#888888] text-xs font-body focus:outline-none focus:border-[#D4AF37] transition-all"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-mono text-slate-300 font-bold block">
+                  <label className="text-xs font-body font-bold text-[#D4AF37] uppercase tracking-[0.15em] block">
                     Detailed Field Notes & Structural Engineering Observation *
                   </label>
                   <textarea
@@ -391,19 +394,19 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Describe specific physical symptoms: cracking width, void depths, drainage condition, heavy vehicle frequency, and impact of traffic loads on the road base."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#0d1117] border border-slate-700 text-white placeholder:text-slate-500 text-xs focus:outline-none focus:border-[#00f5ff] transition-all leading-relaxed"
+                    className="w-full px-3.5 py-2.5 bg-[#0A0A0A] border border-[#D4AF37]/40 text-[#F2F0E4] placeholder:text-[#888888] text-xs font-body focus:outline-none focus:border-[#D4AF37] transition-all leading-relaxed"
                   />
                 </div>
 
                 {/* Physics Sliders */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1 font-mono">
-                  <div className="p-3.5 rounded-xl bg-[#0d1117] border border-slate-800 space-y-2">
+                  <div className="p-4 bg-[#0A0A0A] border border-[#D4AF37]/30 space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-400 flex items-center gap-1">
-                        <Gauge className="w-3.5 h-3.5 text-[#00f5ff]" />
+                      <span className="text-[#888888] flex items-center gap-1.5 uppercase">
+                        <Gauge className="w-3.5 h-3.5 text-[#D4AF37]" />
                         Traffic Flow:
                       </span>
-                      <span className="text-white font-bold">{trafficVolume} veh/day</span>
+                      <span className="text-[#D4AF37] font-bold">{trafficVolume} veh/day</span>
                     </div>
                     <input
                       type="range"
@@ -412,17 +415,17 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                       step={100}
                       value={trafficVolume}
                       onChange={(e) => setTrafficVolume(Number(e.target.value))}
-                      className="w-full accent-[#00f5ff]"
+                      className="w-full accent-[#D4AF37]"
                     />
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-[#0d1117] border border-slate-800 space-y-2">
+                  <div className="p-4 bg-[#0A0A0A] border border-[#D4AF37]/30 space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-400 flex items-center gap-1">
-                        <Truck className="w-3.5 h-3.5 text-amber-400" />
+                      <span className="text-[#888888] flex items-center gap-1.5 uppercase">
+                        <Truck className="w-3.5 h-3.5 text-[#D4AF37]" />
                         Heavy Axles:
                       </span>
-                      <span className="text-white font-bold">{heavyVehiclePct}%</span>
+                      <span className="text-[#F2E8C4] font-bold">{heavyVehiclePct}%</span>
                     </div>
                     <input
                       type="range"
@@ -431,17 +434,17 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                       step={1}
                       value={heavyVehiclePct}
                       onChange={(e) => setHeavyVehiclePct(Number(e.target.value))}
-                      className="w-full accent-amber-400"
+                      className="w-full accent-[#D4AF37]"
                     />
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-[#0d1117] border border-slate-800 space-y-2">
+                  <div className="p-4 bg-[#0A0A0A] border border-[#D4AF37]/30 space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-400 flex items-center gap-1">
-                        <Droplets className="w-3.5 h-3.5 text-teal-400" />
+                      <span className="text-[#888888] flex items-center gap-1.5 uppercase">
+                        <Droplets className="w-3.5 h-3.5 text-[#D4AF37]" />
                         Pore Moisture:
                       </span>
-                      <span className="text-white font-bold">{subgradeMoisturePct}%</span>
+                      <span className="text-teal-400 font-bold">{subgradeMoisturePct}%</span>
                     </div>
                     <input
                       type="range"
@@ -458,7 +461,7 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                 {/* Optional Quote / Attestation */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                   <div className="space-y-1 sm:col-span-2">
-                    <label className="text-[11px] font-mono text-slate-400 block">
+                    <label className="text-[11px] font-mono text-[#888888] uppercase tracking-wider block">
                       Attestation Statement / Field Quote (Optional)
                     </label>
                     <input
@@ -466,11 +469,11 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                       value={quoteText}
                       onChange={(e) => setQuoteText(e.target.value)}
                       placeholder="e.g. Dynamic load balancing averted an emergency viaduct closure."
-                      className="w-full px-3 py-2 rounded-xl bg-[#0d1117] border border-slate-700 text-white text-xs focus:outline-none"
+                      className="w-full px-3 py-2 bg-[#0A0A0A] border border-[#D4AF37]/40 text-[#F2F0E4] text-xs font-body focus:outline-none"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[11px] font-mono text-slate-400 block">
+                    <label className="text-[11px] font-mono text-[#888888] uppercase tracking-wider block">
                       Engineer Name / Title
                     </label>
                     <input
@@ -478,18 +481,18 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                       value={quoteAuthor}
                       onChange={(e) => setQuoteAuthor(e.target.value)}
                       placeholder="e.g. Lead Geotech Engineer"
-                      className="w-full px-3 py-2 rounded-xl bg-[#0d1117] border border-slate-700 text-white text-xs focus:outline-none"
+                      className="w-full px-3 py-2 bg-[#0A0A0A] border border-[#D4AF37]/40 text-[#F2F0E4] text-xs font-body focus:outline-none"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Action Button: Run Verification */}
-              <div className="pt-4 border-t border-slate-800 flex items-center justify-between gap-4">
+              <div className="pt-5 border-t border-[#D4AF37]/30 flex items-center justify-between gap-4">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono transition-colors cursor-pointer"
+                  className="px-5 py-2.5 bg-[#0A0A0A] hover:bg-[#1C1C1C] text-[#888888] hover:text-[#F2F0E4] text-xs font-body uppercase tracking-[0.15em] border border-[#D4AF37]/40 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -497,18 +500,18 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                 <button
                   type="submit"
                   disabled={isVerifying}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black text-xs font-mono font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="deco-btn-solid text-xs font-bold flex items-center gap-2 cursor-pointer disabled:opacity-50 px-6 py-2.5"
                 >
                   {isVerifying ? (
                     <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <RefreshCw className="w-4 h-4 animate-spin text-[#0A0A0A]" />
                       <span>{verificationStage || 'Analyzing Telemetry & Mechanics...'}</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-4 h-4" />
+                      <Sparkles className="w-4 h-4 text-[#0A0A0A]" />
                       <span>Run AI Forensic Verification</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3.5 h-3.5 text-[#0A0A0A]" />
                     </>
                   )}
                 </button>
@@ -519,95 +522,95 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
             <div className="space-y-6 animate-fadeIn">
               
               {/* Verdict Header Banner */}
-              <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+              <div className={`p-6 border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                 verificationResponse.isVerified
-                  ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-200'
-                  : 'bg-rose-950/40 border-rose-500/50 text-rose-200'
+                  ? 'bg-[#064E3B]/30 border-emerald-500/50 text-emerald-200 shadow-[0_0_20px_rgba(6,78,59,0.3)]'
+                  : 'bg-rose-950/40 border-rose-500/50 text-rose-200 shadow-[0_0_20px_rgba(153,27,27,0.3)]'
               }`}>
-                <div className="flex items-center gap-3.5">
+                <div className="flex items-center gap-4">
                   {verificationResponse.isVerified ? (
-                    <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+                    <div className="w-12 h-12 bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shrink-0">
                       <CheckCircle2 className="w-7 h-7" />
                     </div>
                   ) : (
-                    <div className="w-12 h-12 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
+                    <div className="w-12 h-12 bg-rose-500/20 border border-rose-500/50 flex items-center justify-center text-rose-400 shrink-0">
                       <XCircle className="w-7 h-7" />
                     </div>
                   )}
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider ${
+                      <span className={`px-2.5 py-0.5 text-[10px] font-mono font-bold uppercase tracking-widest ${
                         verificationResponse.isVerified
                           ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                           : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
                       }`}>
                         {verificationResponse.verdict}
                       </span>
-                      <span className="text-xs font-mono opacity-80">
+                      <span className="text-xs font-mono opacity-80 uppercase tracking-wider">
                         {verificationResponse.confidencePct}% Forensic Confidence
                       </span>
                     </div>
-                    <h4 className="text-lg font-headline font-bold text-white mt-1">
+                    <h4 className="text-lg font-display font-bold text-white mt-1 uppercase tracking-wider">
                       {verificationResponse.isVerified
                         ? 'Case Study Authenticated & Geotechnically Verified'
-                        : 'Submission Rejected: Physical Anomaly / Contradiction'}
+                        : 'Submission Rejected: Physical Anomaly Detected'}
                     </h4>
                   </div>
                 </div>
 
-                <div className="text-right font-mono text-xs opacity-75">
+                <div className="text-right font-mono text-xs opacity-75 uppercase tracking-wider">
                   <span>Engine: {verificationResponse.verification?.modelUsed || 'Gemini 3.7 Flash'}</span>
                 </div>
               </div>
 
               {/* Forensic Metric Grid */}
               {verificationResponse.isVerified && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
-                  <div className="p-4 rounded-xl bg-[#0d1117] border border-slate-800 text-center">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Pavement Condition</span>
-                    <span className="text-xl sm:text-2xl font-bold text-[#00f5ff] mt-1 block">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono">
+                  <div className="p-4 bg-[#0A0A0A] border border-[#D4AF37]/30 text-center">
+                    <span className="text-[10px] text-[#888888] uppercase tracking-wider block">Pavement Condition</span>
+                    <span className="text-xl sm:text-2xl font-bold text-[#D4AF37] mt-1 block">
                       {verificationResponse.verification?.pavementConditionIndex}/100
                     </span>
-                    <span className="text-[10px] text-slate-400">{verificationResponse.verification?.pciCategory}</span>
+                    <span className="text-[10px] text-[#888888] uppercase tracking-wider">{verificationResponse.verification?.pciCategory}</span>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-[#0d1117] border border-slate-800 text-center">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Peak Shear Strain</span>
-                    <span className="text-xl sm:text-2xl font-bold text-amber-400 mt-1 block">
+                  <div className="p-4 bg-[#0A0A0A] border border-[#D4AF37]/30 text-center">
+                    <span className="text-[10px] text-[#888888] uppercase tracking-wider block">Peak Shear Strain</span>
+                    <span className="text-xl sm:text-2xl font-bold text-[#F2E8C4] mt-1 block">
                       {verificationResponse.verification?.dynamicShearStrainMicrostrain} µε
                     </span>
-                    <span className="text-[10px] text-slate-400">τxy Tensor</span>
+                    <span className="text-[10px] text-[#888888] uppercase tracking-wider">τxy Tensor</span>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-[#0d1117] border border-slate-800 text-center">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Pumping Risk</span>
+                  <div className="p-4 bg-[#0A0A0A] border border-[#D4AF37]/30 text-center">
+                    <span className="text-[10px] text-[#888888] uppercase tracking-wider block">Pumping Risk</span>
                     <span className="text-xl sm:text-2xl font-bold text-rose-400 mt-1 block">
                       {verificationResponse.verification?.subgradePumpingRisk}
                     </span>
-                    <span className="text-[10px] text-slate-400">Hydraulic Pore Pressure</span>
+                    <span className="text-[10px] text-[#888888] uppercase tracking-wider">Pore Pressure</span>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-[#0d1117] border border-slate-800 text-center">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Fatigue Saved</span>
+                  <div className="p-4 bg-[#0A0A0A] border border-[#D4AF37]/30 text-center">
+                    <span className="text-[10px] text-[#888888] uppercase tracking-wider block">Fatigue Saved</span>
                     <span className="text-xl sm:text-2xl font-bold text-emerald-400 mt-1 block">
                       -{verificationResponse.verification?.fatigueReductionPct}%
                     </span>
-                    <span className="text-[10px] text-emerald-400">StrataGrid Rerouting</span>
+                    <span className="text-[10px] text-emerald-400 uppercase tracking-wider">StrataGrid Balancing</span>
                   </div>
                 </div>
               )}
 
               {/* Scientific & Engineering Forensic Breakdown */}
-              <div className="p-5 rounded-2xl bg-[#0d1117] border border-slate-800 space-y-4 text-xs font-sans">
+              <div className="p-6 bg-[#0A0A0A] border border-[#D4AF37]/30 space-y-4 text-xs font-body">
                 <div>
-                  <span className="text-[11px] font-mono text-[#00f5ff] font-bold uppercase tracking-wider block mb-1">
+                  <span className="text-[11px] font-mono text-[#D4AF37] font-bold uppercase tracking-[0.2em] block mb-2">
                     Detected Pavement Distress Categories:
                   </span>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-2">
                     {verificationResponse.verification?.detectedDistressTypes?.map((tag: string, idx: number) => (
                       <span
                         key={idx}
-                        className="px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-slate-200 font-mono text-[11px]"
+                        className="px-3 py-1 bg-[#141414] border border-[#D4AF37]/40 text-[#F2F0E4] font-mono text-[11px] uppercase tracking-wider"
                       >
                         {tag}
                       </span>
@@ -616,30 +619,30 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                 </div>
 
                 <div>
-                  <span className="text-[11px] font-mono text-slate-400 font-bold uppercase tracking-wider block mb-1">
+                  <span className="text-[11px] font-mono text-[#888888] font-bold uppercase tracking-[0.2em] block mb-1">
                     Scientific & Geotechnical Basis:
                   </span>
-                  <p className="text-slate-300 leading-relaxed">
+                  <p className="text-[#F2F0E4]/90 leading-relaxed tracking-wide">
                     {verificationResponse.verification?.scientificBasis}
                   </p>
                 </div>
 
                 <div>
-                  <span className="text-[11px] font-mono text-teal-400 font-bold uppercase tracking-wider block mb-1">
+                  <span className="text-[11px] font-mono text-[#D4AF37] font-bold uppercase tracking-[0.2em] block mb-1">
                     Recommended StrataGrid Cooperative Mitigation:
                   </span>
-                  <p className="text-slate-300 leading-relaxed">
+                  <p className="text-[#F2F0E4]/90 leading-relaxed tracking-wide">
                     {verificationResponse.verification?.recommendedMitigation}
                   </p>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-4">
+              <div className="pt-4 border-t border-[#D4AF37]/30 flex items-center justify-between gap-4">
                 <button
                   type="button"
                   onClick={() => setVerificationResponse(null)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono transition-colors cursor-pointer"
+                  className="px-5 py-2.5 bg-[#0A0A0A] hover:bg-[#1C1C1C] text-[#888888] hover:text-[#F2E8C4] text-xs font-body uppercase tracking-[0.15em] border border-[#D4AF37]/40 transition-colors cursor-pointer"
                 >
                   ← Edit Study Input
                 </button>
@@ -648,16 +651,16 @@ export const AddCaseStudyModal: React.FC<AddCaseStudyModalProps> = ({
                   <button
                     type="button"
                     onClick={handlePublishCaseStudy}
-                    className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-mono font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 cursor-pointer"
+                    className="deco-btn-solid text-xs font-bold flex items-center gap-2 cursor-pointer px-6 py-2.5"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Approve & Add to Case Studies + Inspection Gallery</span>
+                    <CheckCircle2 className="w-4 h-4 text-[#0A0A0A]" />
+                    <span>Approve & Add to Case Studies + Gallery</span>
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono"
+                    className="px-5 py-2.5 bg-[#0A0A0A] text-[#888888] hover:text-[#F2F0E4] border border-[#D4AF37]/30 text-xs font-body uppercase tracking-wider"
                   >
                     Close
                   </button>

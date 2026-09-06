@@ -1,18 +1,14 @@
 import React from 'react';
 import {
-  ShieldCheck,
-  Zap,
   Play,
   ArrowRight,
   Cpu,
   Layers,
-  Sparkles,
-  ChevronRight,
-  BarChart3,
-  Truck,
-  Activity
+  Activity,
+  Truck
 } from 'lucide-react';
 import { PageId } from '../types';
+import { DecoCorners } from './common/DecoCorners';
 
 interface LandingHeroProps {
   onNavigate: (page: PageId) => void;
@@ -20,128 +16,205 @@ interface LandingHeroProps {
 
 export const LandingHero: React.FC<LandingHeroProps> = ({ onNavigate }) => {
   return (
-    <div className="relative min-h-screen bg-[#070d1a] text-white flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-20 overflow-hidden">
-      {/* Ambient background glow & cyber grid lines */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0b192e_1px,transparent_1px),linear-gradient(to_bottom,#0b192e_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-cyan-500/10 blur-[130px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[300px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
+    <div className="relative min-h-screen bg-[#0A0A0A] text-[#F2F0E4] flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-24 overflow-hidden deco-crosshatch select-none">
+      {/* Sunburst Radial Backdrop */}
+      <div className="absolute inset-0 deco-sunburst pointer-events-none" />
 
-      <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8">
-        {/* System Online Badge */}
-        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900/80 border border-cyan-500/40 text-cyan-300 text-xs font-mono shadow-lg shadow-cyan-950/50 backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
+      {/* Vertical architectural divider accents */}
+      <div className="absolute top-0 bottom-0 left-12 w-[1px] bg-gradient-to-b from-transparent via-[#D4AF37]/15 to-transparent hidden xl:block pointer-events-none" />
+      <div className="absolute top-0 bottom-0 right-12 w-[1px] bg-gradient-to-b from-transparent via-[#D4AF37]/15 to-transparent hidden xl:block pointer-events-none" />
+
+      <div className="relative z-10 max-w-5xl mx-auto text-center space-y-10">
+        {/* Ceremonial Marquee Badge */}
+        <div className="inline-flex items-center gap-3 px-5 py-2 bg-[#141414] border border-[#D4AF37]/70 shadow-[0_0_15px_rgba(212,175,55,0.2)] backdrop-blur-md relative">
+          <DecoCorners />
+          <span className="w-2 h-2 bg-[#D4AF37] rotate-45 animate-pulse" />
+          <span className="text-[10px] sm:text-xs font-body uppercase tracking-[0.25em] text-[#D4AF37] font-bold">
+            PUNE METROPOLITAN DIGITAL TWIN • H3 RESOLUTION VIII
           </span>
-          <span className="font-bold tracking-wider uppercase">PUNE METROPOLITAN DIGITAL TWIN ONLINE</span>
-          <span className="text-slate-500">•</span>
-          <span className="text-slate-300">H3 RES-8 SPATIAL MESH</span>
+          <span className="w-2 h-2 bg-[#D4AF37] rotate-45 animate-pulse" />
         </div>
 
-        {/* Main Headline */}
-        <div className="space-y-4">
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.1] font-sans">
-            Don't Wait for <br className="hidden sm:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-blue-500">
-              Roads to Fail.
+        {/* Headline with Decorative Art Deco Accents */}
+        <div className="space-y-6">
+          {/* Top Decorative Line with Diamond */}
+          <div className="flex items-center justify-center gap-3">
+            <div className="h-[1px] w-16 sm:w-28 bg-gradient-to-r from-transparent to-[#D4AF37]" />
+            <div className="w-2.5 h-2.5 border border-[#D4AF37] rotate-45 bg-[#0A0A0A]" />
+            <div className="h-[1px] w-16 sm:w-28 bg-gradient-to-l from-transparent to-[#D4AF37]" />
+          </div>
+
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-display font-normal tracking-[0.14em] uppercase text-[#F2F0E4] leading-[1.12]">
+            DON'T WAIT FOR <br />
+            <span className="deco-gold-gradient-text font-bold block mt-1">
+              ROADS TO FAIL.
             </span>
           </h1>
 
-          {/* The Killer Hackathon Pitch Line */}
-          <p className="max-w-3xl mx-auto text-base sm:text-xl text-slate-300 font-normal leading-relaxed">
-            Standard navigation apps optimize for your trip today by destroying our roads tomorrow.
-            <strong className="text-white font-semibold"> StrataGrid AI </strong>
-            orchestrates traffic and protects municipal infrastructure simultaneously—giving drivers a peaceful,
-            uncrowded journey while saving cities millions in preventative repair costs.
+          {/* Bottom Decorative Line with Diamond */}
+          <div className="flex items-center justify-center gap-3">
+            <div className="h-[1px] w-16 sm:w-28 bg-gradient-to-r from-transparent to-[#D4AF37]" />
+            <div className="w-2.5 h-2.5 border border-[#D4AF37] rotate-45 bg-[#0A0A0A]" />
+            <div className="h-[1px] w-16 sm:w-28 bg-gradient-to-l from-transparent to-[#D4AF37]" />
+          </div>
+
+          {/* Killer Pitch Statement */}
+          <p className="max-w-3xl mx-auto text-base sm:text-xl text-[#F2F0E4]/90 font-body font-light leading-relaxed tracking-wide">
+            Conventional navigation systems optimize for your individual travel time today by accelerating
+            structural failure tomorrow.{' '}
+            <strong className="text-[#D4AF37] font-bold tracking-wider uppercase">StrataGrid AI</strong>{' '}
+            cooperatively distributes vehicular load across resilient spatial corridors—delivering tranquil journeys
+            while protecting municipal roadbeds.
           </p>
         </div>
 
-        {/* CTA Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+        {/* Architectural CTAs */}
+        <div className="flex flex-wrap items-center justify-center gap-5 pt-2">
           <button
             onClick={() => onNavigate('dashboard')}
-            className="px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-teal-400 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-mono font-extrabold text-sm sm:text-base flex items-center gap-3 shadow-2xl shadow-cyan-500/30 hover:scale-[1.02] transition-all"
+            className="deco-btn-solid px-8 py-4 text-xs sm:text-sm tracking-[0.25em] flex items-center gap-3 group cursor-pointer"
           >
-            <Play className="w-5 h-5 fill-slate-950" />
-            LAUNCH LIVE 3D COMMAND MESH
-            <ArrowRight className="w-5 h-5" />
+            <Play className="w-4 h-4 fill-[#0A0A0A]" />
+            <span>ENTER 3D COMMAND MESH</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
 
           <button
             onClick={() => onNavigate('pipeline')}
-            className="px-6 py-4 rounded-2xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/60 text-slate-200 hover:text-white font-mono font-bold text-sm flex items-center gap-2 backdrop-blur-md transition-all"
+            className="deco-btn-gold px-8 py-4 text-xs sm:text-sm tracking-[0.25em] flex items-center gap-2.5 cursor-pointer"
           >
-            <Layers className="w-4 h-4 text-cyan-400" />
-            8-Stage Architecture
+            <Layers className="w-4 h-4 text-[#D4AF37]" />
+            <span>THE VIII-STAGE BLUEPRINT</span>
           </button>
         </div>
 
-        {/* 4 Quantitative Validation Metric Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-800/80 max-w-4xl mx-auto">
-          <div className="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/80 text-center backdrop-blur-sm">
-            <span className="block text-2xl sm:text-3xl font-black font-mono text-cyan-400">320+</span>
-            <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider mt-0.5 block">
+        {/* Four Classical Roman Numeral Metric Exhibit Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-8 max-w-4xl mx-auto">
+          {/* Card I */}
+          <div className="deco-panel p-5 relative text-center group">
+            <DecoCorners />
+            <span className="text-[10px] font-display text-[#D4AF37] tracking-[0.3em] block mb-1">
+              EXHIBIT I
+            </span>
+            <span className="block text-3xl sm:text-4xl font-display font-bold text-[#F2F0E4] group-hover:text-[#D4AF37] transition-colors">
+              320+
+            </span>
+            <span className="text-[9px] font-body uppercase tracking-[0.2em] text-[#888888] mt-1.5 block">
               H3 Res-8 Spatial Nodes
             </span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/80 text-center backdrop-blur-sm">
-            <span className="block text-2xl sm:text-3xl font-black font-mono text-emerald-400">-62%</span>
-            <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider mt-0.5 block">
-              Peak Pavement Fatigue
+          {/* Card II */}
+          <div className="deco-panel p-5 relative text-center group">
+            <DecoCorners />
+            <span className="text-[10px] font-display text-[#D4AF37] tracking-[0.3em] block mb-1">
+              EXHIBIT II
+            </span>
+            <span className="block text-3xl sm:text-4xl font-display font-bold text-[#D4AF37]">
+              -62%
+            </span>
+            <span className="text-[9px] font-body uppercase tracking-[0.2em] text-[#888888] mt-1.5 block">
+              Cyclic Asphalt Fatigue
             </span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/80 text-center backdrop-blur-sm">
-            <span className="block text-2xl sm:text-3xl font-black font-mono text-blue-400">4.2 min</span>
-            <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider mt-0.5 block">
-              Commuter Time Equity
+          {/* Card III */}
+          <div className="deco-panel p-5 relative text-center group">
+            <DecoCorners />
+            <span className="text-[10px] font-display text-[#D4AF37] tracking-[0.3em] block mb-1">
+              EXHIBIT III
+            </span>
+            <span className="block text-3xl sm:text-4xl font-display font-bold text-[#F2F0E4] group-hover:text-[#D4AF37] transition-colors">
+              4.2m
+            </span>
+            <span className="text-[9px] font-body uppercase tracking-[0.2em] text-[#888888] mt-1.5 block">
+              Commuter Equity Saved
             </span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/80 text-center backdrop-blur-sm">
-            <span className="block text-2xl sm:text-3xl font-black font-mono text-amber-400">$2.4M</span>
-            <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider mt-0.5 block">
-              Annual Capital Avoidance
+          {/* Card IV */}
+          <div className="deco-panel p-5 relative text-center group">
+            <DecoCorners />
+            <span className="text-[10px] font-display text-[#D4AF37] tracking-[0.3em] block mb-1">
+              EXHIBIT IV
+            </span>
+            <span className="block text-3xl sm:text-4xl font-display font-bold text-[#D4AF37]">
+              $2.4M
+            </span>
+            <span className="text-[9px] font-body uppercase tracking-[0.2em] text-[#888888] mt-1.5 block">
+              Capital Repair Avoidance
             </span>
           </div>
         </div>
 
-        {/* 3 Core Value Pillars */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-8 text-left">
-          {/* Pillar 1 */}
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 transition-transform">
-              <Cpu className="w-6 h-6" />
+        {/* Three Value Pillars - Architectural Facades */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 text-left">
+          {/* Pillar I */}
+          <div className="deco-panel p-7 relative group">
+            <DecoCorners />
+            <div className="flex items-center justify-between mb-5">
+              <div className="w-12 h-12 deco-diamond bg-[#0A0A0A] border border-[#D4AF37]">
+                <div className="deco-diamond-inner">
+                  <Cpu className="w-5 h-5 text-[#D4AF37]" />
+                </div>
+              </div>
+              <span className="text-xs font-display font-bold text-[#D4AF37] tracking-[0.3em]">
+                PILLAR I
+              </span>
             </div>
-            <h3 className="text-base font-bold text-white mb-2 font-mono">1. Predictive Infrastructure</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Maps Pune into discrete H3 hexagonal cells. Calculates real-time 0–100 Road Stress Scores factoring in
-              monsoon rainfall infiltration, AASHTO 4th-power heavy axle fatigue, and subgrade moisture saturation.
+            <h3 className="text-sm sm:text-base font-display font-bold text-[#F2F0E4] mb-2 tracking-[0.15em] uppercase">
+              PREDICTIVE INFRASTRUCTURE
+            </h3>
+            <div className="h-[1px] w-12 bg-[#D4AF37]/50 mb-3" />
+            <p className="text-xs font-body text-[#888888] leading-relaxed tracking-wide">
+              Discretizes Pune into Uber H3 Resolution-8 hexagons. Computes dynamic 0–100 Road Stress Scores
+              synthesizing monsoon saturation, AASHTO 4th-power heavy axle fatigue, and subgrade moisture.
             </p>
           </div>
 
-          {/* Pillar 2 */}
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-4 group-hover:scale-110 transition-transform">
-              <Activity className="w-6 h-6" />
+          {/* Pillar II */}
+          <div className="deco-panel p-7 relative group">
+            <DecoCorners />
+            <div className="flex items-center justify-between mb-5">
+              <div className="w-12 h-12 deco-diamond bg-[#0A0A0A] border border-[#D4AF37]">
+                <div className="deco-diamond-inner">
+                  <Activity className="w-5 h-5 text-[#D4AF37]" />
+                </div>
+              </div>
+              <span className="text-xs font-display font-bold text-[#D4AF37] tracking-[0.3em]">
+                PILLAR II
+              </span>
             </div>
-            <h3 className="text-base font-bold text-white mb-2 font-mono">2. Cooperative Load Balancing</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Unlike standard GPS which creates flash bottlenecks by funneling thousands of cars down the exact same
-              shortcut, StrataGrid dynamically splits commuter volume across structurally resilient parallel corridors.
+            <h3 className="text-sm sm:text-base font-display font-bold text-[#F2F0E4] mb-2 tracking-[0.15em] uppercase">
+              COOPERATIVE LOAD BALANCING
+            </h3>
+            <div className="h-[1px] w-12 bg-[#D4AF37]/50 mb-3" />
+            <p className="text-xs font-body text-[#888888] leading-relaxed tracking-wide">
+              Replaces selfish shortest-path navigation with cooperative multi-objective Pareto pathfinding,
+              staggering commuter flows across parallel corridors before asphalt micro-cracking propagates into voids.
             </p>
           </div>
 
-          {/* Pillar 3 */}
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition-transform">
-              <Truck className="w-6 h-6" />
+          {/* Pillar III */}
+          <div className="deco-panel p-7 relative group">
+            <DecoCorners />
+            <div className="flex items-center justify-between mb-5">
+              <div className="w-12 h-12 deco-diamond bg-[#0A0A0A] border border-[#D4AF37]">
+                <div className="deco-diamond-inner">
+                  <Truck className="w-5 h-5 text-[#D4AF37]" />
+                </div>
+              </div>
+              <span className="text-xs font-display font-bold text-[#D4AF37] tracking-[0.3em]">
+                PILLAR III
+              </span>
             </div>
-            <h3 className="text-base font-bold text-white mb-2 font-mono">3. Heavy Freight Geo-Fencing</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Multi-axle container freight accounts for 85%+ of pavement destruction. StrataGrid automatically enforces
-              intelligent bypass routes away from fragile residential streets and flood-prone basins.
+            <h3 className="text-sm sm:text-base font-display font-bold text-[#F2F0E4] mb-2 tracking-[0.15em] uppercase">
+              HEAVY FREIGHT GEO-FENCING
+            </h3>
+            <div className="h-[1px] w-12 bg-[#D4AF37]/50 mb-3" />
+            <p className="text-xs font-body text-[#888888] leading-relaxed tracking-wide">
+              Heavy multi-axle freight causes over 85% of pavement damage. StrataGrid dynamically restricts 50-ton
+              trucks from waterlogged residential corridors, rerouting them to reinforced industrial bypasses.
             </p>
           </div>
         </div>
