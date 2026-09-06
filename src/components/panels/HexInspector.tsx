@@ -35,7 +35,7 @@ export const HexInspector: React.FC<HexInspectorProps> = ({
     : '#10B981';
 
   return (
-    <aside className="absolute top-20 right-4 z-20 w-80 md:w-88 pointer-events-auto select-none font-body transition-all animate-in fade-in duration-200">
+    <aside className="absolute top-[128px] right-4 z-20 w-80 md:w-88 pointer-events-auto select-none font-body transition-all animate-in fade-in duration-200">
       <div className="bg-[#141414]/95 backdrop-blur-md border border-[#D4AF37] p-5 shadow-[0_0_30px_rgba(0,0,0,0.9)] text-[#F2F0E4] space-y-4 relative">
         <DecoCorners />
 

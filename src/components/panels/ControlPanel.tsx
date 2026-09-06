@@ -53,7 +53,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
 
   return (
     <div
-      className={`absolute top-20 left-4 z-20 transition-all duration-300 pointer-events-auto select-none font-body ${
+      className={`absolute top-[128px] left-4 z-20 transition-all duration-300 pointer-events-auto select-none font-body ${
         isCollapsed ? 'w-12' : 'w-80 md:w-88'
       }`}
     >

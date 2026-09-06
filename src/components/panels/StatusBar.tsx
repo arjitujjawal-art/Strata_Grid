@@ -43,13 +43,13 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   const badge = getStressBadge(avgStress);
 
   return (
-    <header className="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none select-none font-body">
+    <header className="absolute top-[72px] left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none select-none font-body">
       {/* Brand & Active Mesh Status */}
       <div className="flex items-center gap-3 bg-[#0A0A0A]/90 backdrop-blur-md border border-[#D4AF37] px-4 py-2 shadow-[0_0_20px_rgba(212,175,55,0.15)] pointer-events-auto relative">
         <DecoCorners />
         <div className="flex items-center gap-2.5">
           <div className="w-2 h-2 bg-[#D4AF37] rotate-45 animate-pulse" />
-          <span className="font-display font-bold text-sm tracking-[0.2em] text-[#F2F0E4] uppercase">
+          <span className="font-display font-bold text-sm tracking-[0.2em] text-[#F2E8C4] uppercase">
             STRATAGRID <span className="text-[#D4AF37]">AI</span>
           </span>
         </div>
@@ -79,7 +79,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
         <div className="flex items-center gap-2 text-xs uppercase tracking-[0.15em] text-[#F2F0E4]">
           <CloudRain className="w-3.5 h-3.5 text-[#D4AF37]" />
           <span className="text-[#888888]">PRECIP:</span>
-          <span className="font-bold text-[#F2F0E4]">{rainfallMm} MM/H</span>
+          <span className="font-bold text-[#F2E8C4]">{rainfallMm} MM/H</span>
         </div>
 
         <div className="h-4 w-[1px] bg-[#D4AF37]/30" />
@@ -97,15 +97,15 @@ export const StatusBar: React.FC<StatusBarProps> = ({
       <div className="flex items-center gap-2 pointer-events-auto">
         <button
           onClick={onOpenTokenSettings}
-          className={`flex items-center gap-2 px-3.5 py-2 text-xs uppercase tracking-[0.2em] font-body font-bold border transition-all ${
+          className={`flex items-center gap-2 px-3.5 py-2 text-xs uppercase tracking-[0.2em] font-body font-bold border transition-all cursor-pointer ${
             hasToken
-              ? 'bg-[#141414] text-[#F2F0E4] border-[#D4AF37]/60 hover:bg-[#D4AF37] hover:text-[#0A0A0A] hover:border-[#D4AF37]'
-              : 'bg-[#D4AF37] text-[#0A0A0A] border-[#F2E8C4] shadow-[0_0_15px_rgba(212,175,55,0.4)] animate-pulse'
+              ? 'bg-[#064E3B]/60 text-emerald-300 border-emerald-500/60 hover:bg-[#064E3B]'
+              : 'bg-[#141414] text-[#D4AF37] border-[#D4AF37]/60 hover:border-[#D4AF37] hover:bg-[#D4AF37]/10'
           }`}
-          title="Mapbox Configuration"
+          title="Configure Mapbox access token for 3D buildings & terrain"
         >
-          <Key className="w-3.5 h-3.5" />
-          <span>{hasToken ? '3D MESH ACTIVE' : 'SET MAPBOX KEY'}</span>
+          <Key className="w-3.5 h-3.5 text-[#D4AF37]" />
+          <span>{hasToken ? 'MAPBOX 3D ACTIVE' : 'MAPBOX 3D KEY'}</span>
         </button>
       </div>
     </header>

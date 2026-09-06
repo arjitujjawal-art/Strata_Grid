@@ -27,7 +27,7 @@ export const ScenarioOverlay: React.FC<ScenarioOverlayProps> = ({
   onGoToStep
 }) => {
   return (
-    <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 w-[94%] max-w-2xl pointer-events-auto select-none font-body transition-all animate-in fade-in duration-300">
+    <div className="absolute top-[128px] left-1/2 -translate-x-1/2 z-30 w-[94%] max-w-2xl pointer-events-auto select-none font-body transition-all animate-in fade-in duration-300">
       <div className="bg-[#141414]/95 backdrop-blur-xl border border-[#D4AF37] p-5 shadow-[0_0_35px_rgba(0,0,0,0.9)] text-[#F2F0E4] relative">
         <DecoCorners />
 

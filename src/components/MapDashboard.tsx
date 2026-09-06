@@ -4,8 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { getMapboxToken } from '../config/env';
 import { generatePuneH3Grid, cellsToGeoJson } from '../data/puneHexGrid';
 import { PUNE_ROUTES, getRoutesForCorridor, routesToGeoJson } from '../data/puneRoutes';
-import { DEMO_SCENARIO_STEPS } from '../data/demoScript';
-import { PuneHexCell, GeoRouteOption, GridMode, TerminalLog as TerminalLogType, DemoScenarioStep } from '../types';
+import { PuneHexCell, GridMode, TerminalLog as TerminalLogType, DemoScenarioStep } from '../types';
 import { StatusBar } from './panels/StatusBar';
 import { ControlPanel } from './panels/ControlPanel';
 import { HexInspector } from './panels/HexInspector';
@@ -19,6 +18,35 @@ import { applyMapboxAtmosphere, TimeOfDay } from '../hooks/useTimeOfDay';
 interface MapDashboardProps {
   onAskAiAboutCell?: (cell: PuneHexCell) => void;
 }
+
+// Fallback high-performance dark raster style (CartoDB Dark Matter)
+// Runs 100% free with zero API key required, full WebGL 3D pitch/bearing
+const CARTO_DARK_STYLE: any = {
+  version: 8,
+  name: 'CartoDB Dark Matter',
+  sources: {
+    'carto-dark-tiles': {
+      type: 'raster',
+      tiles: [
+        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+        'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+      ],
+      tileSize: 256,
+      attribution: '© CARTO, © OpenStreetMap'
+    }
+  },
+  layers: [
+    {
+      id: 'carto-dark-layer',
+      type: 'raster',
+      source: 'carto-dark-tiles',
+      minzoom: 0,
+      maxzoom: 20
+    }
+  ]
+};
 
 export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -55,7 +83,7 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
       id: 'init-2',
       timestamp: new Date().toLocaleTimeString(),
       level: 'success',
-      message: 'H3 Resolution-8 spatial grid active: 320 hex cells mapped.'
+      message: 'H3 Resolution-8 spatial grid active: 320 hex cells mapped over Pune.'
     }
   ]);
 
@@ -135,10 +163,11 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
 
   // Apply atmosphere whenever timeOfDay changes
   useEffect(() => {
-    if (mapRef.current) {
+    const hasCustomToken = Boolean(token && token.trim().length > 15 && !token.includes('placeholder'));
+    if (mapRef.current && hasCustomToken) {
       applyMapboxAtmosphere(mapRef.current, timeOfDay);
     }
-  }, [timeOfDay]);
+  }, [timeOfDay, token]);
 
   // Update H3 Layer GeoJSON whenever cells change
   useEffect(() => {
@@ -162,7 +191,7 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
     }
   }, [activeRoutes]);
 
-  // Toggle 3D Buildings visibility
+  // Toggle 3D Buildings visibility if layer exists
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
@@ -172,17 +201,23 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
     }
   }, [show3DBuildings]);
 
-  // Initialize Mapbox Map
+  // Initialize Mapbox Map with automatic fallback to CartoDB Dark Matter
   useEffect(() => {
     if (!mapContainerRef.current) return;
-    if (!token) return;
 
-    mapboxgl.accessToken = token;
+    const hasCustomToken = Boolean(token && token.trim().length > 15 && !token.includes('placeholder'));
+    const activeToken = hasCustomToken
+      ? token.trim()
+      : 'pk.eyJ1Ijoic3RyYXRhZ3JpZC1haSIsImEiOiJjbTdyZXgxOGIwMTFjMmpzYjN0eXFicHV5In0.placeholder';
+
+    mapboxgl.accessToken = activeToken;
+
+    const initialStyle = hasCustomToken ? 'mapbox://styles/mapbox/dark-v11' : (CARTO_DARK_STYLE as any);
 
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: 'mapbox://styles/mapbox/dark-v11',
-      center: [73.8050, 18.5650], // Pune Metro
+      style: initialStyle,
+      center: [73.8050, 18.5650], // Pune Metro Centroid
       zoom: 11.8,
       pitch: 52,
       bearing: -15,
@@ -192,63 +227,65 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
     mapRef.current = map;
 
     map.on('load', () => {
-      applyMapboxAtmosphere(map, 'morning');
+      if (hasCustomToken) {
+        applyMapboxAtmosphere(map, 'morning');
 
-      // Add 3D Terrain DEM source if supported
-      try {
-        map.addSource('mapbox-dem', {
-          type: 'raster-dem',
-          url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
-          tileSize: 512,
-          maxzoom: 14
-        });
-        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.15 });
-      } catch (err) {
-        console.debug('Terrain source could not be added:', err);
-      }
+        // Add 3D Terrain DEM source if supported
+        try {
+          map.addSource('mapbox-dem', {
+            type: 'raster-dem',
+            url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+            tileSize: 512,
+            maxzoom: 14
+          });
+          map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.15 });
+        } catch (err) {
+          console.debug('Terrain source could not be added:', err);
+        }
 
-      // Add 3D Building Extrusions from Mapbox vector tiles
-      const layers = map.getStyle().layers;
-      const labelLayerId = layers?.find(
-        (layer) => layer.type === 'symbol' && layer.layout?.['text-field']
-      )?.id;
+        // Add 3D Building Extrusions from Mapbox vector tiles
+        const layers = map.getStyle().layers;
+        const labelLayerId = layers?.find(
+          (layer) => layer.type === 'symbol' && layer.layout?.['text-field']
+        )?.id;
 
-      try {
-        map.addLayer(
-          {
-            id: '3d-buildings',
-            source: 'composite',
-            'source-layer': 'building',
-            filter: ['==', 'extrude', 'true'],
-            type: 'fill-extrusion',
-            minzoom: 12.5,
-            paint: {
-              'fill-extrusion-color': '#0f172a',
-              'fill-extrusion-height': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                13,
-                0,
-                14.5,
-                ['get', 'height']
-              ],
-              'fill-extrusion-base': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                13,
-                0,
-                14.5,
-                ['get', 'min_height']
-              ],
-              'fill-extrusion-opacity': 0.6
-            }
-          },
-          labelLayerId
-        );
-      } catch (err) {
-        console.debug('3D buildings layer error:', err);
+        try {
+          map.addLayer(
+            {
+              id: '3d-buildings',
+              source: 'composite',
+              'source-layer': 'building',
+              filter: ['==', 'extrude', 'true'],
+              type: 'fill-extrusion',
+              minzoom: 12.5,
+              paint: {
+                'fill-extrusion-color': '#0f172a',
+                'fill-extrusion-height': [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  13,
+                  0,
+                  14.5,
+                  ['get', 'height']
+                ],
+                'fill-extrusion-base': [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  13,
+                  0,
+                  14.5,
+                  ['get', 'min_height']
+                ],
+                'fill-extrusion-opacity': 0.6
+              }
+            },
+            labelLayerId
+          );
+        } catch (err) {
+          console.debug('3D buildings layer error:', err);
+        }
       }
 
       // Add H3 Hexagonal Grid GeoJSON Source
@@ -257,7 +294,7 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
         data: cellsToGeoJson(cells)
       });
 
-      // Fill Layer for Hexagons
+      // Fill Layer for Hexagons with Art Deco Gatsby Palette
       map.addLayer({
         id: 'h3-hex-fill',
         type: 'fill',
@@ -266,11 +303,11 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
           'fill-color': [
             'case',
             ['==', ['get', 'isClosed'], 1],
-            '#7F1D1D', // Art Deco Dark Crimson for closed
+            '#7F1D1D', // Dark Crimson for closed
             ['>=', ['get', 'stress'], 86],
-            '#991B1B', // Art Deco Ruby Red
+            '#991B1B', // Ruby Red
             ['>=', ['get', 'stress'], 70],
-            '#C2410C', // Art Deco Bronze
+            '#C2410C', // Bronze Saffron
             ['>=', ['get', 'stress'], 45],
             '#9A7B1C', // Antique Gold
             '#064E3B'  // Deep Emerald
@@ -281,12 +318,12 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
             0.80,
             ['>=', ['get', 'stress'], 70],
             0.60,
-            0.35
+            0.38
           ]
         }
       });
 
-      // Hexagon Wireframe Line Layer
+      // Hexagon Wireframe Line Layer in Metallic Gold
       map.addLayer({
         id: 'h3-hex-line',
         type: 'line',
@@ -344,7 +381,7 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
         const hexId = clickedFeature.properties?.id;
         if (hexId) {
           setSelectedCellId(hexId);
-          addLog(`Selected H3 Cell: ${clickedFeature.properties?.name} (${hexId})`, 'info');
+          addLog(`Inspected Cell: ${clickedFeature.properties?.name} (${hexId})`, 'info');
         }
       });
 
@@ -356,6 +393,14 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
       map.on('mouseleave', 'h3-hex-fill', () => {
         map.getCanvas().style.cursor = '';
       });
+    });
+
+    // Fallback if Mapbox token rejects connection
+    map.on('error', (e: any) => {
+      if (hasCustomToken && (e?.error?.message?.includes('Forbidden') || e?.status === 401 || e?.status === 403)) {
+        console.warn('Mapbox token was rejected. Falling back to open Carto Dark Matter mesh.');
+        map.setStyle(CARTO_DARK_STYLE as any);
+      }
     });
 
     return () => {
@@ -416,14 +461,14 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
     setSelectedCorridor('hinjewadi_shivajinagar');
     setActiveRouteId('route-hinjewadi-selfish');
     setTimeOfDay('morning');
-    addLog('Simulation reset to factory baseline telemetry.', 'info');
+    addLog('Simulation reset to baseline telemetry.', 'info');
   };
 
   const handleSelectRoute = (routeId: string) => {
     setActiveRouteId(routeId);
     const selected = PUNE_ROUTES.find((r) => r.id === routeId);
     if (selected) {
-      addLog(`Active corridor route switched to: ${selected.name}`, selected.type === 'cooperative' ? 'success' : 'warn');
+      addLog(`Corridor route switched: ${selected.name}`, selected.type === 'cooperative' ? 'success' : 'warn');
       if (mapRef.current && selected.pathCoords.length > 0) {
         const midPoint = selected.pathCoords[Math.floor(selected.pathCoords.length / 2)];
         mapRef.current.easeTo({
@@ -436,45 +481,14 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
     }
   };
 
+  const hasCustomToken = Boolean(token && token.trim().length > 15 && !token.includes('placeholder'));
+
   return (
     <div className="relative w-full h-screen bg-[#0A0A0A] overflow-hidden select-none font-body">
-      {/* 3D Mapbox Map Canvas Container */}
+      {/* 3D Mapbox WebGL Map Canvas */}
       <div ref={mapContainerRef} className="absolute inset-0 w-full h-full" />
 
-      {/* Fallback View when Token is missing */}
-      {!token && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 bg-[#0A0A0A]/95 backdrop-blur-md text-[#F2F0E4] text-center deco-crosshatch">
-          <div className="max-w-md deco-panel p-8 space-y-5 border border-[#D4AF37] shadow-[0_0_40px_rgba(212,175,55,0.25)] relative">
-            <div className="corner-tl" />
-            <div className="corner-tr" />
-            <div className="corner-bl" />
-            <div className="corner-br" />
-
-            <div className="w-14 h-14 deco-diamond bg-[#0A0A0A] border border-[#D4AF37] mx-auto shadow-[0_0_20px_rgba(212,175,55,0.3)]">
-              <div className="deco-diamond-inner">
-                <svg className="w-6 h-6 text-[#D4AF37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                </svg>
-              </div>
-            </div>
-            <h2 className="text-lg font-display font-bold text-[#F2F0E4] tracking-[0.2em] uppercase">
-              MAPBOX 3D ENGINE STANDING BY
-            </h2>
-            <p className="text-xs text-[#888888] leading-relaxed tracking-wide">
-              To render the interactive 3D terrain, building extrusions, and live H3 hex spatial mesh over Pune,
-              please provide your free Mapbox public token.
-            </p>
-            <button
-              onClick={() => setIsTokenModalOpen(true)}
-              className="deco-btn-solid px-6 py-3 text-xs tracking-[0.2em] uppercase cursor-pointer"
-            >
-              CONFIGURE ACCESS KEY
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Top Telemetry Status Bar */}
+      {/* Top Telemetry Status Bar - Positioned cleanly under the Navbar */}
       <StatusBar
         activeHexCount={cells.length}
         avgStress={avgStress}
@@ -482,7 +496,7 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
         isPlayingScenario={isPlayingScenario}
         scenarioPhase={currentStep?.phase}
         onOpenTokenSettings={() => setIsTokenModalOpen(true)}
-        hasToken={Boolean(token)}
+        hasToken={hasCustomToken}
       />
 
       {/* Auto-Play Demo Scenario Narrative Overlay */}
@@ -533,7 +547,7 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
         onAskAiAboutCell={onAskAiAboutCell}
       />
 
-      {/* Bottom Route Comparison Panel */}
+      {/* Bottom Route Comparison Panel with Collapse Toggle */}
       <RouteCompare
         routes={activeRoutes}
         activeRouteId={activeRouteId}
@@ -551,7 +565,7 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
         currentToken={token}
         onSaveToken={(newToken) => {
           setToken(newToken);
-          addLog('Mapbox access token updated. Reloading 3D engine.', 'success');
+          addLog('Map access token updated. Reloading 3D engine.', 'success');
         }}
       />
     </div>
