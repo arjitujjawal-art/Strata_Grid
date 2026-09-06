@@ -49,29 +49,29 @@ I can answer questions about the **StrataGrid AI** system, including:
 
 const SUGGESTED_PROMPTS: { label: string; prompt: string; mode: ChatMode }[] = [
   {
+    label: '🌧️ Pune Monsoon Stress',
+    prompt: 'Why does the Hinjewadi-Wakad corridor face critical pavement failure when rainfall reaches 75mm/h?',
+    mode: 'general'
+  },
+  {
+    label: '🚚 PCCOE Freight Bypass',
+    prompt: 'How does StrataGrid AI geo-fence and reroute heavy multi-axle freight away from PCCOE and residential Akurdi?',
+    mode: 'simulation'
+  },
+  {
     label: '📊 Road Stress Score',
-    prompt: 'How is the Road Stress Score (0-100) calculated and what are its tiers?',
-    mode: 'general'
+    prompt: 'How is the Road Stress Score (0-100) calculated using traffic, vehicle weights, and weather multipliers?',
+    mode: 'geotech'
   },
   {
-    label: '🔄 8-Stage Pipeline',
-    prompt: 'Can you walk through the 8 stages of the StrataGrid AI pipeline from ingestion to feedback loop?',
+    label: '🔄 Cooperative vs Selfish',
+    prompt: 'How does cooperative load-balancing differ from Google Maps selfish routing, and why does it save roads?',
     mode: 'simulation'
   },
   {
-    label: '🎛️ Dashboard Modes',
-    prompt: 'What is the difference between Driver Mode, Fleet Mode, and City Mode?',
-    mode: 'general'
-  },
-  {
-    label: '👥 Who Benefits & Impact',
-    prompt: 'Who benefits from StrataGrid AI and what is the urban impact on traffic and infrastructure?',
+    label: '👥 Who Benefits & ROI',
+    prompt: 'Who benefits from StrataGrid AI and what is the municipal capital repair cost avoidance for cities like Pune?',
     mode: 'roi'
-  },
-  {
-    label: '📶 3 Data Levels',
-    prompt: 'How does StrataGrid scale across Level 1, Level 2, and Level 3 data levels without mandatory hardware?',
-    mode: 'simulation'
   },
   {
     label: '👥 Core Team',
@@ -109,6 +109,20 @@ export const AiChatbot: React.FC<AiChatbotProps> = ({ onNavigatePage }) => {
       setUnreadCount(0);
     }
   }, [isOpen]);
+
+  // Listen for Ask AI requests from H3 Hex Inspector
+  useEffect(() => {
+    const handleAskAi = (e: any) => {
+      const { prompt, mode } = e.detail || {};
+      if (prompt) {
+        setIsOpen(true);
+        if (mode) setActiveMode(mode);
+        setTimeout(() => handleSendMessage(prompt), 100);
+      }
+    };
+    window.addEventListener('stratagrid_ask_ai', handleAskAi);
+    return () => window.removeEventListener('stratagrid_ask_ai', handleAskAi);
+  }, []);
 
   const handleSendMessage = async (customText?: string) => {
     const textToSend = customText || inputPrompt;

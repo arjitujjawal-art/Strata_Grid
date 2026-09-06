@@ -1,5 +1,5 @@
 export type GridMode = 'driver' | 'fleet' | 'city';
-export type PageId = 'home' | 'demo' | 'problem' | 'how-it-works' | 'case-studies' | 'impact' | 'gallery' | 'team';
+export type PageId = 'home' | 'dashboard' | 'pipeline' | 'case-studies' | 'gallery' | 'team';
 export type ThemePalette = 'emerald' | 'indigo' | 'amber' | 'cyan';
 export type ChatMode = 'general' | 'simulation' | 'geotech' | 'roi';
 
@@ -11,23 +11,65 @@ export interface ChatMessage {
   source?: string;
 }
 
-export interface HexCell {
-  id: string; // e.g. "HEX-01", "HEX-11"
-  q: number; // axial or column
-  r: number; // axial or row
-  name: string; // e.g. "Grand Ave Overpass", "Sector 7G Flyover"
-  district: string; // e.g. "Metropolis Core", "Harbor District", "Logistics Hub"
+export interface PuneHexCell {
+  id: string; // h3Index
+  h3Index: string;
+  centroid: [number, number]; // [lng, lat]
+  boundary: [number, number][]; // [lng, lat][]
+  name: string; // e.g. "Hinjewadi Phase 1", "PCCOE Tech Corridor"
+  district: string; // e.g. "Hinjewadi", "PCMC", "Shivajinagar"
   baseStress: number; // 0-100
+  calculatedStress: number; // 0-100
   trafficVolume: number; // vehicles / hr
   heavyVehiclePct: number; // 0-100%
   floodVulnerability: number; // 0-100%
-  isClosed?: boolean;
+  moisturePct: number; // 0-100%
   roadType: 'arterial' | 'highway' | 'bridge' | 'urban_corridor' | 'freight_spur';
-  speedLimit: number; // mph
+  speedLimit: number; // km/h
   surfaceHealth: number; // 0-100%
-  potholeRisk: 'Low' | 'Moderate' | 'High' | 'Severe';
+  potholeRisk: 'Low' | 'Moderate' | 'High' | 'Severe' | 'Critical';
+  asphaltAgeYears: number;
+  esalDaily: number;
+  isClosed?: boolean;
 }
 
+export interface HexCell {
+  id: string; // e.g. "HEX-01", "HEX-11"
+  q?: number;
+  r?: number;
+  name: string;
+  district: string;
+  baseStress: number;
+  trafficVolume: number;
+  heavyVehiclePct: number;
+  floodVulnerability: number;
+  isClosed?: boolean;
+  roadType: 'arterial' | 'highway' | 'bridge' | 'urban_corridor' | 'freight_spur';
+  speedLimit: number;
+  surfaceHealth: number;
+  potholeRisk: 'Low' | 'Moderate' | 'High' | 'Severe' | 'Critical';
+}
+
+export interface GeoRouteOption {
+  id: string;
+  name: string;
+  type: 'selfish' | 'cooperative';
+  corridor: 'hinjewadi_shivajinagar' | 'pcmc_freight';
+  color: string;
+  durationMin: number;
+  distanceKm: number;
+  avgStress: number;
+  structuralImpact: 'Critical Degradation' | 'Moderate Wear' | 'Minimal Impact (Eco-Protect)';
+  isRecommended: boolean;
+  tag: string;
+  pathCoords: [number, number][]; // [lng, lat]
+  traversedH3: string[];
+  fatigueSavedPct: number;
+  co2SavedKg: number;
+  description: string;
+}
+
+// Backward compatibility alias
 export interface RouteOption {
   id: string;
   name: string;
@@ -38,6 +80,27 @@ export interface RouteOption {
   isRecommended: boolean;
   tag: string;
   pathHexIds: string[];
+}
+
+export interface DemoScenarioStep {
+  id: number;
+  phase: string;
+  title: string;
+  caption: string;
+  rainfallMm: number;
+  trafficMultiplier: number;
+  camera: {
+    center: [number, number]; // [lng, lat]
+    zoom: number;
+    pitch: number;
+    bearing: number;
+  };
+  activeRouteId: string;
+  corridor: 'hinjewadi_shivajinagar' | 'pcmc_freight';
+  highlightedHexId?: string;
+  closedHexId?: string;
+  timeOfDay: 'morning' | 'monsoon_noon' | 'evening_rush' | 'night';
+  systemLog: string;
 }
 
 export interface TeamMember {

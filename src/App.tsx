@@ -1,43 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
-import { HeroSection } from './components/HeroSection';
-import { ProblemSection } from './components/ProblemSection';
+import { LandingHero } from './components/LandingHero';
+import { MapDashboard } from './components/MapDashboard';
 import { HowItWorksSection } from './components/HowItWorksSection';
-import { DemoDashboard } from './components/DemoDashboard';
 import { CaseStudiesSection } from './components/CaseStudiesSection';
-import { ImpactSection } from './components/ImpactSection';
 import { GallerySection } from './components/GallerySection';
 import { TeamSection } from './components/TeamSection';
 import { Footer } from './components/Footer';
-import { PageHeaderBanner } from './components/PageHeaderBanner';
 import { AiChatbot } from './components/AiChatbot';
-import { PageId, ThemePalette } from './types';
+import { PageId, PuneHexCell } from './types';
 
 export default function App() {
-  const [activePage, setActivePage] = useState<PageId>('home');
-  const [currentTheme, setCurrentTheme] = useState<ThemePalette>(() => {
-    const saved = localStorage.getItem('stratagrid_theme') as ThemePalette;
-    return (saved && ['emerald', 'indigo', 'amber', 'cyan'].includes(saved)) ? saved : 'emerald';
+  const [activePage, setActivePage] = useState<PageId>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace('#', '') as PageId;
+      const validPages: PageId[] = ['home', 'dashboard', 'pipeline', 'case-studies', 'gallery', 'team'];
+      // Support legacy demo hash as alias to dashboard
+      if ((hash as string) === 'demo') return 'dashboard';
+      if (validPages.includes(hash)) return hash;
+    }
+    return 'dashboard'; // Default to the 3D map centerpiece!
   });
 
-  // Apply theme class to document body
-  useEffect(() => {
-    document.body.className = `theme-${currentTheme}`;
-    localStorage.setItem('stratagrid_theme', currentTheme);
-  }, [currentTheme]);
-
-  // Handle URL hash changes for direct linking & back/forward browser navigation
+  // Handle URL hash changes for back/forward navigation
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '') as PageId;
-      const validPages: PageId[] = ['home', 'demo', 'problem', 'how-it-works', 'case-studies', 'impact', 'gallery', 'team'];
+      const validPages: PageId[] = ['home', 'dashboard', 'pipeline', 'case-studies', 'gallery', 'team'];
+      if ((hash as string) === 'demo') {
+        setActivePage('dashboard');
+        return;
+      }
       if (validPages.includes(hash)) {
         setActivePage(hash);
       }
     };
-
-    // Initial check
-    handleHashChange();
 
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
@@ -49,184 +46,117 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSelectTheme = (newTheme: ThemePalette) => {
-    setCurrentTheme(newTheme);
+  const handleAskAiAboutCell = (cell: PuneHexCell) => {
+    // Dispatch custom event to trigger chatbot with cell query
+    const prompt = `Can you analyze the geotechnical risk for ${cell.name} (${cell.district}) with base stress ${cell.baseStress}% and current moisture ${cell.moisturePct}%?`;
+    window.dispatchEvent(
+      new CustomEvent('stratagrid_ask_ai', {
+        detail: { prompt, mode: 'geotech' }
+      })
+    );
   };
 
+  const isMapActive = activePage === 'dashboard';
+
   return (
-    <div className="min-h-screen bg-[var(--color-bg-canvas)] text-slate-200 selection:bg-emerald-500/30 selection:text-emerald-300 font-sans antialiased overflow-x-hidden flex flex-col justify-between transition-colors duration-300">
-      {/* Top Fixed Sticky Header Navigation with Palette Switcher */}
-      <Navbar 
-        activePage={activePage} 
-        onSelectPage={handleSelectPage}
-        currentTheme={currentTheme}
-        onSelectTheme={handleSelectTheme}
-      />
+    <div className="min-h-screen bg-[#070d1a] text-slate-200 selection:bg-cyan-500/30 selection:text-cyan-300 font-sans antialiased flex flex-col justify-between overflow-x-hidden">
+      {/* Top Header Navigation */}
+      <Navbar activePage={activePage} onSelectPage={handleSelectPage} />
 
-      {/* Main Dedicated Webpage Content Rendering */}
-      <main className="flex-1 pb-20 pt-16">
-        {/* WEBPAGE 1: HOME / PLATFORM OVERVIEW */}
+      {/* Main Content Area */}
+      <main className={`flex-1 ${isMapActive ? 'p-0' : 'pt-16 pb-12'}`}>
+        {/* VIEW 1: 3D COMMAND MESH (CENTERPIECE) */}
+        {activePage === 'dashboard' && (
+          <div className="w-full h-screen">
+            <MapDashboard onAskAiAboutCell={handleAskAiAboutCell} />
+          </div>
+        )}
+
+        {/* VIEW 2: OVERVIEW / LANDING HERO */}
         {activePage === 'home' && (
-          <div className="animate-fadeIn">
-            <HeroSection onNavigate={handleSelectPage} />
+          <div className="animate-in fade-in duration-300">
+            <LandingHero onNavigate={handleSelectPage} />
           </div>
         )}
 
-        {/* WEBPAGE 2: LIVE SIMULATION & COMMAND CENTER */}
-        {activePage === 'demo' && (
-          <div className="animate-fadeIn space-y-4">
-            <PageHeaderBanner
-              pageId="demo"
-              category="Interactive Command Center"
-              title="Live H3 Hexagonal Grid Simulation & Cooperative Routing"
-              explanation="This live command center demonstrates real-time traffic stress modeling across a 49-cell municipal H3 grid. Adjust precipitation and traffic volume to watch dynamic shear strain accumulate, switch between selfish and cooperative routing algorithms, or trigger emergency road closures to test real-time failover flow."
-              metrics={[
-                { label: 'Grid Topology', value: '49 H3 Cells', color: 'text-emerald-400' },
-                { label: 'Live Telemetry', value: '1.2M events/s', color: 'text-emerald-400' },
-                { label: 'Stress Mitigation', value: '-32.4% Peak', color: 'text-emerald-400' },
-                { label: 'Inference Delay', value: '12ms Edge', color: 'text-emerald-400' }
-              ]}
-              activePage={activePage}
-              onSelectPage={handleSelectPage}
-            />
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <DemoDashboard />
+        {/* VIEW 3: 8-STAGE ARCHITECTURE PIPELINE */}
+        {activePage === 'pipeline' && (
+          <div className="animate-in fade-in duration-300 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+            <div className="text-center max-w-3xl mx-auto space-y-2 mb-8">
+              <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-800/60 px-3 py-1 rounded-full uppercase tracking-wider">
+                System Blueprint
+              </span>
+              <h1 className="text-3xl sm:text-4xl font-black text-white font-sans">
+                The 8-Stage Architecture Pipeline
+              </h1>
+              <p className="text-sm text-slate-400">
+                Closed-loop infrastructure orchestration connecting edge sensing, H3 DGGS spatial tiling, AASHTO fatigue physics, and Pareto pathfinding.
+              </p>
             </div>
-          </div>
-        )}
-
-        {/* WEBPAGE 3: THE CORE URBAN DILEMMA & PROBLEM */}
-        {activePage === 'problem' && (
-          <div className="animate-fadeIn space-y-4">
-            <PageHeaderBanner
-              pageId="problem"
-              category="Geotechnical & Urban Dilemma"
-              title="The Feedback Loop of Road Failure: Selfish Navigation vs. Asphalt Physics"
-              explanation="Conventional GPS applications optimize purely for individual travel seconds, funneling thousands of vehicles onto fragile residential streets and aged overpasses. This concentrated axle loading causes hydraulic sub-base pumping and rapid pothole generation."
-              metrics={[
-                { label: 'Fatigue Acceleration', value: '6.8x Faster', color: 'text-rose-400' },
-                { label: 'Annual Repairs', value: '$3.4M/Yr', color: 'text-amber-400' },
-                { label: 'Sub-base Pumping', value: '84% Moisture', color: 'text-rose-400' },
-                { label: 'Predictability', value: '100% Risk', color: 'text-emerald-400' }
-              ]}
-              activePage={activePage}
-              onSelectPage={handleSelectPage}
-            />
-            <ProblemSection />
-          </div>
-        )}
-
-        {/* WEBPAGE 4: HOW IT WORKS / 8-STAGE ARCHITECTURE */}
-        {activePage === 'how-it-works' && (
-          <div className="animate-fadeIn space-y-4">
-            <PageHeaderBanner
-              pageId="how-it-works"
-              category="Algorithmic Pipeline"
-              title="How StrataGrid AI Works"
-              explanation="From raw city data to smarter, healthier traffic — in 8 stages. Explore our closed-loop architecture connecting multimodal edge ingestion, Uber H3 spatial tiling, geotechnical shear physics, and cooperative Pareto rerouting."
-              metrics={[
-                { label: 'Pipeline Depth', value: '8 Stages', color: 'text-[#00f5ff]' },
-                { label: 'Spatial Hex Grid', value: 'Uber H3 Res 8', color: 'text-emerald-400' },
-                { label: 'Inference Cycle', value: '12ms Realtime', color: 'text-[#00f5ff]' },
-                { label: 'Lifespan Gain', value: '+400% Base', color: 'text-emerald-400' }
-              ]}
-              activePage={activePage}
-              onSelectPage={handleSelectPage}
-            />
             <HowItWorksSection />
           </div>
         )}
 
-        {/* WEBPAGE 5: FIELD CASE STUDIES */}
+        {/* VIEW 4: EMPIRICAL CASE STUDIES & MULTIMODAL AI EVALUATION */}
         {activePage === 'case-studies' && (
-          <div className="animate-fadeIn space-y-4">
-            <PageHeaderBanner
-              pageId="case-studies"
-              category="Proven Field Pilots"
-              title="Municipal Field Case Studies & Measurable Structural Deployments"
-              explanation="Explore empirical deployment data from long-term municipal pilots. See how real-time moisture-aware load balancing protected the Metropolis Core viaduct, mitigated subgrade hydraulic pumping during monsoon seasons at Harbor Port terminals, and preserved commuter arterial networks."
-              metrics={[
-                { label: 'Monitored Corridors', value: '128 Sectors', color: 'text-emerald-400' },
-                { label: 'Pothole Incursions', value: '-84%', color: 'text-emerald-400' },
-                { label: 'Heavy Axle Compliance', value: '98.2%', color: 'text-emerald-400' },
-                { label: 'Annual Pilot Savings', value: '$1.9M', color: 'text-emerald-400' }
-              ]}
-              activePage={activePage}
-              onSelectPage={handleSelectPage}
-            />
+          <div className="animate-in fade-in duration-300 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+            <div className="text-center max-w-3xl mx-auto space-y-2 mb-8">
+              <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-3 py-1 rounded-full uppercase tracking-wider">
+                Empirical Deployments
+              </span>
+              <h1 className="text-3xl sm:text-4xl font-black text-white font-sans">
+                Municipal Field Case Studies & Forensic AI
+              </h1>
+              <p className="text-sm text-slate-400">
+                Field validation data from monitored corridors, complete with automated multimodal Gemini 3.7 Flash forensic pavement distress evaluation.
+              </p>
+            </div>
             <CaseStudiesSection />
           </div>
         )}
 
-        {/* WEBPAGE 6: URBAN IMPACT & MACRO ROI */}
-        {activePage === 'impact' && (
-          <div className="animate-fadeIn space-y-4">
-            <PageHeaderBanner
-              pageId="impact"
-              category="Economic & Structural ROI"
-              title="Urban Impact"
-              explanation="Real-world benefits, grounded in how the system actually works."
-              metrics={[
-                { label: 'Fatigue Strain', value: '-32.4%', color: 'text-emerald-400' },
-                { label: 'Metro Savings', value: '$3.8M/Yr', color: 'text-amber-400' },
-                { label: 'Base Lifespan', value: '4.0x', color: 'text-emerald-400' },
-                { label: 'CO₂ Abated', value: '14.2k t/Yr', color: 'text-emerald-400' }
-              ]}
-              activePage={activePage}
-              onSelectPage={handleSelectPage}
-            />
-            <ImpactSection />
-          </div>
-        )}
-
-        {/* WEBPAGE 7: SENSOR TELEMETRY & GALLERY */}
+        {/* VIEW 5: SENSOR SCANS & GALLERY */}
         {activePage === 'gallery' && (
-          <div className="animate-fadeIn space-y-4">
-            <PageHeaderBanner
-              pageId="gallery"
-              category="Field Telemetry Scans"
-              title="Sensors, Profilometry & Drone Inspection Gallery"
-              explanation="A high-resolution visual repository of the IoT sensors, LiDAR profilometry drones, ground-penetrating radar scans, and weigh-in-motion stations feeding raw structural data into the StrataGrid AI network. Upload and inspect custom field images with automated spatial tagging."
-              metrics={[
-                { label: 'Active Sensors', value: '4,280+', color: 'text-emerald-400' },
-                { label: 'Thermal Scans', value: '24/7 Live', color: 'text-emerald-400' },
-                { label: 'WIM Accuracy', value: '99.4%', color: 'text-emerald-400' },
-                { label: 'Drone Profilometry', value: 'Sub-mm LiDAR', color: 'text-emerald-400' }
-              ]}
-              activePage={activePage}
-              onSelectPage={handleSelectPage}
-            />
+          <div className="animate-in fade-in duration-300 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+            <div className="text-center max-w-3xl mx-auto space-y-2 mb-8">
+              <span className="text-xs font-mono font-bold text-blue-400 bg-blue-950/60 border border-blue-800/60 px-3 py-1 rounded-full uppercase tracking-wider">
+                Edge Ingestion
+              </span>
+              <h1 className="text-3xl sm:text-4xl font-black text-white font-sans">
+                Sensor Profilometry & Defect Gallery
+              </h1>
+              <p className="text-sm text-slate-400">
+                High-resolution repository of weigh-in-motion (WIM), acoustic strain gauges, and drone LiDAR inspections powering the digital twin.
+              </p>
+            </div>
             <GallerySection />
           </div>
         )}
 
-        {/* WEBPAGE 8: ENGINEERING TEAM & RESEARCH */}
+        {/* VIEW 6: CORE ENGINEERING TEAM */}
         {activePage === 'team' && (
-          <div className="animate-fadeIn space-y-4">
-            <PageHeaderBanner
-              pageId="team"
-              category="Core Engineering Team"
-              title="Researchers, Systems Architects & Civil Engineers"
-              explanation="StrataGrid AI is engineered by a multidisciplinary team bridging geotechnical engineering, spatial graph neural networks, and high-throughput real-time distributed systems. Meet the team, explore their technical specialties, and customize bio information."
-              metrics={[
-                { label: 'Domain Mix', value: 'Geotech + AI', color: 'text-emerald-400' },
-                { label: 'Research Papers', value: '14 Published', color: 'text-emerald-400' },
-                { label: 'Municipal Pilots', value: '3 Active', color: 'text-emerald-400' },
-                { label: 'System SLA', value: '99.998%', color: 'text-amber-400' }
-              ]}
-              activePage={activePage}
-              onSelectPage={handleSelectPage}
-            />
+          <div className="animate-in fade-in duration-300 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+            <div className="text-center max-w-3xl mx-auto space-y-2 mb-8">
+              <span className="text-xs font-mono font-bold text-purple-400 bg-purple-950/60 border border-purple-800/60 px-3 py-1 rounded-full uppercase tracking-wider">
+                Core Contributors
+              </span>
+              <h1 className="text-3xl sm:text-4xl font-black text-white font-sans">
+                Engineering, Geotechnical & AI Team
+              </h1>
+              <p className="text-sm text-slate-400">
+                The multidisciplinary team behind StrataGrid AI bridging civil pavement mechanics, spatial graph intelligence, and real-time systems.
+              </p>
+            </div>
             <TeamSection />
           </div>
         )}
       </main>
 
-      {/* Persistent AI Infrastructure Copilot Chatbot Docked at Right Bottom */}
+      {/* Persistent Docked AI Copilot Chatbot */}
       <AiChatbot onNavigatePage={handleSelectPage} />
 
-      {/* Footer with Persistent Telemetry Status & Multi-Page Navigation */}
-      <Footer onSelectPage={handleSelectPage} />
+      {/* Footer on non-map views */}
+      {!isMapActive && <Footer onSelectPage={handleSelectPage} />}
     </div>
   );
 }
