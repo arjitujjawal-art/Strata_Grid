@@ -1,0 +1,6 @@
+{
+  "name": "StrataGrid AI",
+  "description": "AI-powered urban traffic orchestration and road infrastructure protection platform mapped to an H3 hexagonal spatial grid.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

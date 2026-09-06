@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-headline: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-body: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    
+    /* Default Emerald Palette */
+    --color-bg-canvas: #090d16;
+    --color-bg-card: #101726;
+    --color-bg-card-subtle: #172238;
+    --color-primary: #10b981;
+    --color-primary-rgb: 16, 185, 129;
+    --color-secondary: #00f5c4;
+    --color-accent: #34d399;
+    --color-border: rgba(16, 185, 129, 0.2);
+  }
+
+  body.theme-emerald {
+    --color-bg-canvas: #090d16;
+    --color-bg-card: #101726;
+    --color-bg-card-subtle: #172238;
+    --color-primary: #10b981;
+    --color-primary-rgb: 16, 185, 129;
+    --color-secondary: #00f5c4;
+    --color-accent: #34d399;
+    --color-border: rgba(16, 185, 129, 0.2);
+  }
+
+  body.theme-indigo {
+    --color-bg-canvas: #090919;
+    --color-bg-card: #10122e;
+    --color-bg-card-subtle: #191c44;
+    --color-primary: #6366f1;
+    --color-primary-rgb: 99, 102, 241;
+    --color-secondary: #a855f7;
+    --color-accent: #818cf8;
+    --color-border: rgba(99, 102, 241, 0.22);
+  }
+
+  body.theme-amber {
+    --color-bg-canvas: #0c1017;
+    --color-bg-card: #141a24;
+    --color-bg-card-subtle: #1d2636;
+    --color-primary: #f59e0b;
+    --color-primary-rgb: 245, 158, 11;
+    --color-secondary: #fbbf24;
+    --color-accent: #fcd34d;
+    --color-border: rgba(245, 158, 11, 0.22);
+  }
+
+  body.theme-cyan {
+    --color-bg-canvas: #04101d;
+    --color-bg-card: #081a2e;
+    --color-bg-card-subtle: #0f2845;
+    --color-primary: #06b6d4;
+    --color-primary-rgb: 6, 182, 212;
+    --color-secondary: #22d3ee;
+    --color-accent: #67e8f9;
+    --color-border: rgba(6, 182, 212, 0.22);
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-bg-canvas);
+    color: #e2e8f0;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-headline);
+  }
+}
+
+.font-mono-code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.font-headline {
+  font-family: 'Hanken Grotesk', sans-serif;
+}
+
+.font-body {
+  font-family: 'Geist', sans-serif;
+}
+
+/* Glassmorphism Panels */
+.glass-panel {
+  background: rgba(16, 23, 38, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border);
+}
+
+.glass-panel-subtle {
+  background: rgba(23, 34, 56, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.glass-panel-glow {
+  background: rgba(16, 23, 38, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--color-primary);
+  box-shadow: 0 0 25px rgba(var(--color-primary-rgb), 0.15);
+}
+
+.glow-primary {
+  text-shadow: 0 0 12px rgba(var(--color-primary-rgb), 0.6);
+}
+
+.glow-teal {
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+}
+
+.glow-amber {
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+}
+
+.glow-red {
+  text-shadow: 0 0 12px rgba(255, 100, 100, 0.6);
+}
+
+/* Grid & Hex Backgrounds */
+.bg-grid-tech {
+  background-image: 
+    linear-gradient(rgba(var(--color-primary-rgb), 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--color-primary-rgb), 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.bg-dot-matrix {
+  background-image: radial-gradient(rgba(var(--color-primary-rgb), 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(10, 15, 26, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-primary-rgb), 0.35);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--color-primary-rgb), 0.6);
+}
+
+/* Pulsing radar animation */
+@keyframes radar-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-radar {
+  animation: radar-sweep 12s linear infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(var(--color-primary-rgb), 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(var(--color-primary-rgb), 0.65);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s infinite ease-in-out;
+}
