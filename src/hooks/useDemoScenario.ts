@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import mapboxgl from 'mapbox-gl';
+import type { Map as MapLibreMap } from 'maplibre-gl';
 import { DEMO_SCENARIO_STEPS } from '../data/demoScript';
 import { DemoScenarioStep } from '../types';
 
 interface UseDemoScenarioOptions {
-  map: mapboxgl.Map | null;
+  map: MapLibreMap | null;
   onStepChange?: (step: DemoScenarioStep) => void;
   stepDurationMs?: number;
 }
@@ -65,6 +65,16 @@ export function useDemoScenario({
     });
   }, [applyStep]);
 
+  const goToStep = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < DEMO_SCENARIO_STEPS.length) {
+        setCurrentStepIndex(index);
+        applyStep(index);
+      }
+    },
+    [applyStep]
+  );
+
   const startScenario = useCallback(() => {
     setIsPlaying(true);
     setCurrentStepIndex(0);
@@ -79,37 +89,32 @@ export function useDemoScenario({
     }
   }, []);
 
-  const goToStep = useCallback(
-    (index: number) => {
-      if (index >= 0 && index < DEMO_SCENARIO_STEPS.length) {
-        setCurrentStepIndex(index);
-        applyStep(index);
-      }
-    },
-    [applyStep]
-  );
-
-  // Timer loop when auto-playing
+  // Interval timer for auto-advancing steps
   useEffect(() => {
-    if (!isPlaying) {
-      if (timerRef.current) clearInterval(timerRef.current);
-      return;
+    if (isPlaying) {
+      timerRef.current = setInterval(() => {
+        setCurrentStepIndex((prev) => {
+          const next = prev + 1;
+          if (next >= DEMO_SCENARIO_STEPS.length) {
+            setIsPlaying(false);
+            return prev;
+          }
+          applyStep(next);
+          return next;
+        });
+      }, stepDurationMs);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     }
 
-    timerRef.current = setInterval(() => {
-      setCurrentStepIndex((prev) => {
-        const next = prev + 1;
-        if (next >= DEMO_SCENARIO_STEPS.length) {
-          setIsPlaying(false);
-          return prev;
-        }
-        applyStep(next);
-        return next;
-      });
-    }, stepDurationMs);
-
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
   }, [isPlaying, stepDurationMs, applyStep]);
 

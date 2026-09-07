@@ -1,126 +1,90 @@
-import React, { useState } from 'react';
-import { Key, X, ExternalLink, Check } from 'lucide-react';
-import { setMapboxToken } from '../../config/env';
+import React from 'react';
+import { Radio, X, Check, ShieldCheck, Globe, Zap } from 'lucide-react';
 import { DecoCorners } from '../common/DecoCorners';
 
 interface TokenModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentToken: string;
-  onSaveToken: (token: string) => void;
+  currentToken?: string;
+  onSaveToken?: (token: string) => void;
 }
 
 export const TokenModal: React.FC<TokenModalProps> = ({
   isOpen,
-  onClose,
-  currentToken,
-  onSaveToken
+  onClose
 }) => {
-  const [inputVal, setInputVal] = useState(currentToken);
-  const [isSaved, setIsSaved] = useState(false);
-
   if (!isOpen) return null;
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputVal.trim()) return;
-
-    setMapboxToken(inputVal.trim());
-    onSaveToken(inputVal.trim());
-    setIsSaved(true);
-    setTimeout(() => {
-      setIsSaved(false);
-      onClose();
-    }, 800);
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 select-none font-body">
-      <div className="bg-[#141414] border-2 border-[#D4AF37] w-full max-w-md p-6 text-[#F2F0E4] shadow-[0_0_40px_rgba(212,175,55,0.25)] space-y-4 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200 select-none font-body">
+      <div className="bg-[#141414] border-2 border-[#D4AF37] w-full max-w-md p-6 sm:p-7 text-[#F2F0E4] shadow-[0_0_50px_rgba(212,175,55,0.3)] space-y-5 relative">
         <DecoCorners />
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#D4AF37]/40 pb-3">
+        <div className="flex items-center justify-between border-b border-[#D4AF37]/40 pb-3.5">
           <div className="flex items-center gap-2.5">
-            <Key className="w-5 h-5 text-[#D4AF37]" />
-            <h3 className="font-display font-bold text-sm tracking-[0.2em] uppercase text-[#F2F0E4]">
-              MAPBOX 3D ACCESS KEY
+            <Radio className="w-5 h-5 text-[#D4AF37]" />
+            <h3 className="font-display font-bold text-sm sm:text-base tracking-[0.2em] uppercase text-[#F2F0E4]">
+              OPEN 3D GEOSPATIAL ENGINE
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="text-[#888888] hover:text-[#D4AF37] p-1 transition-colors cursor-pointer"
+            className="text-[#888888] hover:text-[#D4AF37] p-1.5 transition-colors cursor-pointer"
             aria-label="Close Modal"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <p className="text-xs text-[#F2F0E4]/80 leading-relaxed tracking-wide">
-          StrataGrid AI uses <strong className="text-[#D4AF37] font-bold">Mapbox GL JS v3</strong> to render 3D terrain,
-          building extrusions, and real-time H3 spatial hexagonal overlays for Pune.
-        </p>
-
-        <div className="bg-[#0A0A0A] border border-[#D4AF37]/40 p-4 space-y-2 text-xs">
-          <div className="font-display font-bold text-[#D4AF37] uppercase tracking-[0.15em]">
-            Procedure for Free Access Token:
+        {/* Status Callout */}
+        <div className="p-4 bg-[#064E3B]/30 border border-emerald-500/50 flex items-start gap-3">
+          <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-300 block">
+              100% Free & Open Source Basemap Active
+            </span>
+            <p className="text-[11px] text-[#F2F0E4]/80 leading-relaxed font-body">
+              StrataGrid AI runs on <strong className="text-emerald-200">MapLibre GL JS v6</strong> and <strong className="text-emerald-200">CartoDB Dark Matter</strong>. Zero proprietary access tokens, credit cards, or rate limits are required.
+            </p>
           </div>
-          <ol className="list-decimal list-inside space-y-1.5 text-[#888888] text-[11px] leading-relaxed">
-            <li>
-              Navigate to{' '}
-              <a
-                href="https://www.mapbox.com/"
-                target="_blank"
-                rel="noreferrer"
-                className="text-[#D4AF37] underline inline-flex items-center gap-0.5 font-semibold"
-              >
-                mapbox.com <ExternalLink className="w-2.5 h-2.5" />
-              </a>{' '}
-              and create a free account.
-            </li>
-            <li>Copy your public access token beginning with <code className="text-[#F2E8C4] font-mono">pk.eyJ1...</code></li>
-            <li>Paste your token below or add it to <code className="text-[#F2E8C4] font-mono">.env</code></li>
-          </ol>
         </div>
 
-        <form onSubmit={handleSave} className="space-y-4 pt-2">
-          <div>
-            <label className="block text-[10px] font-display font-bold uppercase tracking-[0.2em] text-[#D4AF37] mb-1">
-              PASTE YOUR PUBLIC TOKEN (pk.*)
-            </label>
-            <input
-              type="text"
-              value={inputVal}
-              onChange={(e) => setInputVal(e.target.value)}
-              placeholder="pk.eyJ1..."
-              className="deco-input w-full text-xs font-mono placeholder-[#888888]/50"
-            />
+        {/* Engine Specs */}
+        <div className="bg-[#0A0A0A] border border-[#D4AF37]/40 p-4 space-y-2.5 text-xs font-mono">
+          <div className="font-display font-bold text-[#D4AF37] uppercase tracking-[0.15em] flex items-center gap-2">
+            <Globe className="w-3.5 h-3.5 text-[#D4AF37]" />
+            Active Architecture Specifications:
           </div>
+          <ul className="space-y-1.5 text-[#888888] text-[11px]">
+            <li className="flex items-center gap-2">
+              <span className="text-[#D4AF37]">◆</span>
+              <span><strong className="text-[#F2E8C4]">Map Engine:</strong> MapLibre GL JS (BSD 3-Clause)</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[#D4AF37]">◆</span>
+              <span><strong className="text-[#F2E8C4]">Basemap:</strong> CartoDB Dark Matter Vector Tiles</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[#D4AF37]">◆</span>
+              <span><strong className="text-[#F2E8C4]">Spatial Mesh:</strong> Uber H3 DGGS (Resolution 8 & 9)</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[#D4AF37]">◆</span>
+              <span><strong className="text-[#F2E8C4]">3D Canvas:</strong> Hardware-Accelerated WebGL</span>
+            </li>
+          </ul>
+        </div>
 
-          <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#D4AF37]/30">
-            <button
-              type="button"
-              onClick={onClose}
-              className="deco-btn-outline px-4 py-2 text-[10px] tracking-[0.2em] cursor-pointer"
-            >
-              CANCEL
-            </button>
-
-            <button
-              type="submit"
-              disabled={!inputVal.trim() || isSaved}
-              className="deco-btn-solid px-5 py-2 text-[10px] tracking-[0.2em] cursor-pointer"
-            >
-              {isSaved ? (
-                <>
-                  <Check className="w-3.5 h-3.5" /> SAVED
-                </>
-              ) : (
-                'INITIALIZE ENGINE'
-              )}
-            </button>
-          </div>
-        </form>
+        {/* Close CTA */}
+        <div className="pt-2 flex justify-end">
+          <button
+            onClick={onClose}
+            className="deco-btn-solid px-6 py-2.5 text-xs font-bold uppercase tracking-[0.18em] cursor-pointer"
+          >
+            CONFIRM & RESUME 3D MESH
+          </button>
+        </div>
       </div>
     </div>
   );

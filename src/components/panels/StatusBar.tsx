@@ -93,19 +93,15 @@ export const StatusBar: React.FC<StatusBarProps> = ({
         </div>
       </div>
 
-      {/* Key / Token Setup */}
+      {/* Engine Status & Info */}
       <div className="flex items-center gap-2 pointer-events-auto">
         <button
           onClick={onOpenTokenSettings}
-          className={`flex items-center gap-2 px-3.5 py-2 text-xs uppercase tracking-[0.2em] font-body font-bold border transition-all cursor-pointer ${
-            hasToken
-              ? 'bg-[#064E3B]/60 text-emerald-300 border-emerald-500/60 hover:bg-[#064E3B]'
-              : 'bg-[#141414] text-[#D4AF37] border-[#D4AF37]/60 hover:border-[#D4AF37] hover:bg-[#D4AF37]/10'
-          }`}
-          title="Configure Mapbox access token for 3D buildings & terrain"
+          className="flex items-center gap-2 px-3.5 py-2 text-xs uppercase tracking-[0.2em] font-body font-bold border transition-all cursor-pointer bg-[#064E3B]/60 text-emerald-300 border-emerald-500/60 hover:bg-[#064E3B]"
+          title="Engine: MapLibre GL 3D (Open Source & 100% Free)"
         >
-          <Key className="w-3.5 h-3.5 text-[#D4AF37]" />
-          <span>{hasToken ? 'MAPBOX 3D ACTIVE' : 'MAPBOX 3D KEY'}</span>
+          <Radio className="w-3.5 h-3.5 text-emerald-400" />
+          <span>MAPLIBRE 3D • ACTIVE</span>
         </button>
       </div>
     </header>
