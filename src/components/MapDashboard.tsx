@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import * as maplibregl from 'maplibre-gl';
-import type { Map as MapLibreMap, GeoJSONSource } from 'maplibre-gl';
+import type { Map as MapLibreMap, GeoJSONSource, Marker as MapLibreMarker } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { generatePuneH3Grid, cellsToGeoJson } from '../data/puneHexGrid';
 import { PUNE_ROUTES, getRoutesForCorridor, routesToGeoJson } from '../data/puneRoutes';
@@ -12,20 +12,24 @@ import { RouteCompare } from './panels/RouteCompare';
 import { TerminalLog } from './panels/TerminalLog';
 import { ScenarioOverlay } from './panels/ScenarioOverlay';
 import { TokenModal } from './panels/TokenModal';
+import { DigitalTwinFallback } from './DigitalTwinFallback';
 import { useDemoScenario } from '../hooks/useDemoScenario';
 import { applyMapboxAtmosphere, TimeOfDay } from '../hooks/useTimeOfDay';
+import {
+  createTrafficFleet,
+  particlesToGeoJson,
+  precalculateRouteLengths,
+  TrafficParticle
+} from '../utils/trafficSimulation';
 
 interface MapDashboardProps {
   onAskAiAboutCell?: (cell: PuneHexCell) => void;
 }
 
-// 100% Free & Open Vector Dark Style (CartoDB Dark Matter GL Style - Zero API Key Required)
-const PUNE_DARK_GL_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
-
-// Offline/Emergency Fallback Raster Dark Style
-const CARTO_DARK_RASTER_FALLBACK: any = {
+// 100% Free, High-Performance CartoDB Dark Matter Basemap (Zero API Key / Zero Remote GL Font Dependencies)
+const CARTO_DARK_RASTER_STYLE: any = {
   version: 8,
-  name: 'CartoDB Dark Matter Raster',
+  name: 'CartoDB Dark Matter',
   sources: {
     'carto-dark-tiles': {
       type: 'raster',
@@ -53,6 +57,9 @@ const CARTO_DARK_RASTER_FALLBACK: any = {
 export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
+  const [mapInstance, setMapInstance] = useState<MapLibreMap | null>(null);
+  const [isMapReady, setIsMapReady] = useState(false);
+  const [webGlSupported, setWebGlSupported] = useState(true);
 
   // Settings modal state
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
@@ -71,6 +78,13 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
 
   // Time of day state
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('morning');
+
+  // Chokepoint HTML Markers ref
+  const chokepointMarkersRef = useRef<MapLibreMarker[]>([]);
+
+  // Particle simulation refs
+  const particlesRef = useRef<TrafficParticle[]>([]);
+  const animFrameIdRef = useRef<number | null>(null);
 
   // Terminal log state
   const [logs, setLogs] = useState<TerminalLogType[]>([
@@ -155,117 +169,193 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
 
   const {
     isPlaying: isPlayingScenario,
+    isPaused: isScenarioPaused,
     currentStepIndex,
     currentStep,
     totalSteps,
+    progressPct,
+    speedMultiplier,
+    setSpeedMultiplier,
+    togglePause,
     startScenario,
     stopScenario,
     nextStep,
     prevStep,
     goToStep
   } = useDemoScenario({
-    map: mapRef.current,
+    map: mapInstance,
     onStepChange: handleScenarioStepChange
   });
 
+  // Check WebGL availability on mount
+  useEffect(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      const isSupported = !!(
+        window.WebGLRenderingContext &&
+        (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+      );
+      if (!isSupported) {
+        console.warn('WebGL is not supported in this browser. Switching to 2.5D Digital Twin Canvas fallback.');
+        setWebGlSupported(false);
+      }
+    } catch {
+      setWebGlSupported(false);
+    }
+  }, []);
+
   // Apply atmosphere whenever timeOfDay changes
   useEffect(() => {
-    if (mapRef.current) {
-      applyMapboxAtmosphere(mapRef.current, timeOfDay);
+    if (mapInstance) {
+      applyMapboxAtmosphere(mapInstance, timeOfDay);
     }
-  }, [timeOfDay]);
+  }, [mapInstance, timeOfDay]);
 
   // Update H3 Layer GeoJSON whenever cells change
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+    if (!map || !isMapReady) return;
 
     const source = map.getSource('h3-grid') as GeoJSONSource;
     if (source) {
       source.setData(cellsToGeoJson(cells));
     }
-  }, [cells]);
+  }, [cells, isMapReady]);
 
   // Update Route Layer GeoJSON whenever corridor or activeRoute changes
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+    if (!map || !isMapReady) return;
 
     const source = map.getSource('pune-routes') as GeoJSONSource;
     if (source) {
       source.setData(routesToGeoJson(activeRoutes));
     }
-  }, [activeRoutes]);
+  }, [activeRoutes, isMapReady]);
 
-  // Initialize MapLibre GL 3D Map (100% Free, No Token Needed)
+  // Toggle 3D Extrusion vs 2D Flat Hexagons
   useEffect(() => {
-    if (!mapContainerRef.current) return;
+    const map = mapRef.current;
+    if (!map || !isMapReady) return;
 
-    const map = new maplibregl.Map({
-      container: mapContainerRef.current,
-      style: PUNE_DARK_GL_STYLE,
-      center: [73.8050, 18.5650], // Pune Metro (Hinjewadi - Wakad - Shivajinagar)
-      zoom: 11.8,
-      pitch: 52, // 3D Isometric View
-      bearing: -15
-    });
+    if (map.getLayer('h3-hex-extrusion') && map.getLayer('h3-hex-fill')) {
+      map.setLayoutProperty('h3-hex-extrusion', 'visibility', show3DBuildings ? 'visible' : 'none');
+      map.setLayoutProperty('h3-hex-fill', 'visibility', show3DBuildings ? 'none' : 'visible');
+    }
+  }, [show3DBuildings, isMapReady]);
+
+  // Initialize MapLibre GL 3D Map
+  useEffect(() => {
+    if (!mapContainerRef.current || !webGlSupported) return;
+
+    let map: MapLibreMap;
+    try {
+      map = new maplibregl.Map({
+        container: mapContainerRef.current,
+        style: CARTO_DARK_RASTER_STYLE,
+        center: [73.8050, 18.5650], // Pune Metro
+        zoom: 12.0,
+        pitch: 52, // 3D Isometric View
+        bearing: -15
+      });
+    } catch (err) {
+      console.error('Failed to initialize MapLibre GL:', err);
+      setWebGlSupported(false);
+      return;
+    }
 
     mapRef.current = map;
 
-    // Add navigation controls (zoom & 3D pitch/bearing compass)
+    // Add navigation controls
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
 
     const onMapReady = () => {
-      // Add H3 Hexagonal Grid GeoJSON Source
+      // 1. Add H3 Hexagonal Grid GeoJSON Source
       if (!map.getSource('h3-grid')) {
         map.addSource('h3-grid', {
           type: 'geojson',
           data: cellsToGeoJson(cells)
         });
 
-        // Fill Layer for Hexagons with Art Deco Gatsby Palette
+        // 3D Hexagon Column Extrusion Layer (proportional to stress score)
+        map.addLayer({
+          id: 'h3-hex-extrusion',
+          type: 'fill-extrusion',
+          source: 'h3-grid',
+          layout: {
+            visibility: 'visible'
+          },
+          paint: {
+            'fill-extrusion-color': [
+              'case',
+              ['==', ['get', 'isClosed'], 1],
+              '#7F1D1D',
+              ['>=', ['get', 'stress'], 86],
+              '#991B1B', // Ruby Red for high stress
+              ['>=', ['get', 'stress'], 70],
+              '#C2410C', // Bronze Saffron
+              ['>=', ['get', 'stress'], 45],
+              '#D4AF37', // Art Deco Metallic Gold
+              '#064E3B'  // Deep Emerald
+            ],
+            'fill-extrusion-height': [
+              'interpolate',
+              ['linear'],
+              ['get', 'stress'],
+              0, 20,
+              100, 320
+            ],
+            'fill-extrusion-base': 0,
+            'fill-extrusion-opacity': 0.75
+          }
+        });
+
+        // 2D Flat Fill Layer for Hexagons (used when 3D extrusion is toggled off)
         map.addLayer({
           id: 'h3-hex-fill',
           type: 'fill',
           source: 'h3-grid',
+          layout: {
+            visibility: 'none'
+          },
           paint: {
             'fill-color': [
               'case',
               ['==', ['get', 'isClosed'], 1],
-              '#7F1D1D', // Dark Crimson for closed
+              '#7F1D1D',
               ['>=', ['get', 'stress'], 86],
-              '#991B1B', // Ruby Red
+              '#991B1B',
               ['>=', ['get', 'stress'], 70],
-              '#C2410C', // Bronze Saffron
+              '#C2410C',
               ['>=', ['get', 'stress'], 45],
-              '#9A7B1C', // Antique Gold
-              '#064E3B'  // Deep Emerald
+              '#9A7B1C',
+              '#064E3B'
             ],
             'fill-opacity': [
               'case',
               ['==', ['get', 'isClosed'], 1],
               0.80,
               ['>=', ['get', 'stress'], 70],
-              0.60,
-              0.38
+              0.65,
+              0.40
             ]
           }
         });
 
-        // Hexagon Wireframe Line Layer in Metallic Gold
+        // Hexagon Wireframe Line Layer in Art Deco Metallic Gold
         map.addLayer({
           id: 'h3-hex-line',
           type: 'line',
           source: 'h3-grid',
           paint: {
-            'line-color': '#D4AF37', // Art Deco Metallic Gold
+            'line-color': '#D4AF37',
             'line-width': 1.2,
             'line-opacity': 0.70
           }
         });
       }
 
-      // Add Routes GeoJSON Source
+      // 2. Add Routes GeoJSON Source
       if (!map.getSource('pune-routes')) {
         map.addSource('pune-routes', {
           type: 'geojson',
@@ -283,9 +373,9 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
           },
           paint: {
             'line-color': ['get', 'color'],
-            'line-width': 10,
-            'line-opacity': 0.40,
-            'line-blur': 4
+            'line-width': 12,
+            'line-opacity': 0.45,
+            'line-blur': 5
           }
         });
 
@@ -306,46 +396,178 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
         });
       }
 
-      // Interactive Click on Hex Cell
-      map.on('click', 'h3-hex-fill', (e) => {
+      // 3. Add Live Traffic Vehicle Particles Source & Layers
+      if (!map.getSource('traffic-vehicles')) {
+        map.addSource('traffic-vehicles', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: []
+          }
+        });
+
+        // Vehicle Glow Layer
+        map.addLayer({
+          id: 'traffic-vehicles-glow',
+          type: 'circle',
+          source: 'traffic-vehicles',
+          paint: {
+            'circle-radius': 11,
+            'circle-color': ['get', 'color'],
+            'circle-opacity': 0.55,
+            'circle-blur': 0.85
+          }
+        });
+
+        // Vehicle Core Layer
+        map.addLayer({
+          id: 'traffic-vehicles-core',
+          type: 'circle',
+          source: 'traffic-vehicles',
+          paint: {
+            'circle-radius': ['get', 'size'],
+            'circle-color': ['get', 'color'],
+            'circle-stroke-width': 1.8,
+            'circle-stroke-color': '#FFFFFF'
+          }
+        });
+      }
+
+      // Interactive Click on Hex Cell (works for both extrusion and fill)
+      const handleCellClick = (e: any) => {
         if (!e.features || e.features.length === 0) return;
         const clickedFeature = e.features[0];
         const hexId = clickedFeature.properties?.id;
         if (hexId) {
           setSelectedCellId(hexId);
-          addLog(`Inspected Cell: ${clickedFeature.properties?.name} (${hexId})`, 'info');
+          addLog(`Sector Inspected: ${clickedFeature.properties?.name} (${hexId})`, 'info');
         }
-      });
+      };
 
-      // Cursor pointer on hover
-      map.on('mouseenter', 'h3-hex-fill', () => {
+      map.on('click', 'h3-hex-extrusion', handleCellClick);
+      map.on('click', 'h3-hex-fill', handleCellClick);
+
+      map.on('mouseenter', 'h3-hex-extrusion', () => {
         map.getCanvas().style.cursor = 'pointer';
       });
-
-      map.on('mouseleave', 'h3-hex-fill', () => {
+      map.on('mouseleave', 'h3-hex-extrusion', () => {
         map.getCanvas().style.cursor = '';
       });
+
+      setIsMapReady(true);
+      setMapInstance(map);
     };
 
     map.on('load', onMapReady);
 
-    // If Carto GL vector style encounters any network hiccup, fallback to raster tiles
     map.on('error', (e: any) => {
-      if (e?.error?.message?.includes('style') || e?.status === 404 || e?.status === 403) {
-        console.warn('Vector basemap encountered an issue. Falling back to Carto Dark raster basemap.');
-        try {
-          map.setStyle(CARTO_DARK_RASTER_FALLBACK);
-        } catch {
-          // ignore
-        }
-      }
+      console.warn('MapLibre event error:', e?.error || e);
     });
 
     return () => {
+      if (animFrameIdRef.current) {
+        cancelAnimationFrame(animFrameIdRef.current);
+      }
+      chokepointMarkersRef.current.forEach((m) => m.remove());
       map.remove();
       mapRef.current = null;
+      setMapInstance(null);
+      setIsMapReady(false);
     };
-  }, []);
+  }, [webGlSupported]);
+
+  // Dynamic 3D HTML Markers for Demonstration Chokepoints
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !isMapReady) return;
+
+    // Remove existing markers
+    chokepointMarkersRef.current.forEach((m) => m.remove());
+    chokepointMarkersRef.current = [];
+
+    if (!isPlayingScenario || !currentStep?.chokepoints) return;
+
+    currentStep.chokepoints.forEach((cp) => {
+      const el = document.createElement('div');
+      el.className = 'stratagrid-chokepoint-marker pointer-events-none select-none flex flex-col items-center';
+
+      const isCritical = cp.status === 'critical';
+      const isMitigated = cp.status === 'mitigated';
+      const isRestricted = cp.status === 'restricted';
+
+      const ringColor = isCritical ? 'border-[#EF4444]' : isMitigated ? 'border-[#10B981]' : isRestricted ? 'border-[#F59E0B]' : 'border-[#D4AF37]';
+      const badgeBg = isCritical ? 'bg-[#1C0F0F]' : isMitigated ? 'bg-[#0E2015]' : isRestricted ? 'bg-[#261B0F]' : 'bg-[#141414]';
+      const textColor = isCritical ? 'text-[#FCA5A5]' : isMitigated ? 'text-[#6EE7B7]' : isRestricted ? 'text-[#FDE68A]' : 'text-[#D4AF37]';
+      const borderColor = isCritical ? 'border-[#EF4444]' : isMitigated ? 'border-[#10B981]' : isRestricted ? 'border-[#F59E0B]' : 'border-[#D4AF37]';
+
+      el.innerHTML = `
+        <div class="relative flex items-center justify-center mb-1">
+          <div class="absolute w-8 h-8 rounded-full border-2 ${ringColor} animate-ping opacity-75"></div>
+          <div class="w-3.5 h-3.5 ${isCritical ? 'bg-[#EF4444]' : isMitigated ? 'bg-[#10B981]' : 'bg-[#D4AF37]'} rotate-45 shadow-[0_0_10px_rgba(212,175,55,0.8)]"></div>
+        </div>
+        <div class="${badgeBg} border-2 ${borderColor} px-2.5 py-1 text-center shadow-[0_0_20px_rgba(0,0,0,0.9)] min-w-[130px] backdrop-blur-md">
+          <div class="text-[9px] font-bold font-display ${textColor} uppercase tracking-[0.15em] leading-tight">${cp.label}</div>
+          <div class="text-[8px] font-body text-[#F2F0E4]/80 tracking-wide mt-0.5">${cp.sublabel}</div>
+        </div>
+      `;
+
+      try {
+        const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat(cp.coords)
+          .addTo(map);
+        chokepointMarkersRef.current.push(marker);
+      } catch (err) {
+        console.debug('Marker add error:', err);
+      }
+    });
+  }, [isPlayingScenario, currentStep, isMapReady]);
+
+  // Continuous Traffic Particle Animation Engine (requestAnimationFrame)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !isMapReady) return;
+
+    // Precalculate cumulative lengths for active corridor routes
+    const routeLookup: Record<string, { path: [number, number][]; segments: number[]; total: number }> = {};
+    for (const r of activeRoutes) {
+      const { total, segments } = precalculateRouteLengths(r.pathCoords);
+      routeLookup[r.id] = { path: r.pathCoords, segments, total };
+    }
+
+    // Seed fleet based on active scenario step or default
+    const stepId = isPlayingScenario ? currentStep?.id || 1 : 1;
+    particlesRef.current = createTrafficFleet(stepId, activeRoutes);
+
+    let isDestroyed = false;
+
+    const animateParticles = () => {
+      if (isDestroyed) return;
+
+      const particles = particlesRef.current;
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.progress = (p.progress + p.speed) % 1;
+      }
+
+      if (map && map.isStyleLoaded()) {
+        const source = map.getSource('traffic-vehicles') as GeoJSONSource;
+        if (source) {
+          source.setData(particlesToGeoJson(particles, routeLookup));
+        }
+      }
+
+      animFrameIdRef.current = requestAnimationFrame(animateParticles);
+    };
+
+    animFrameIdRef.current = requestAnimationFrame(animateParticles);
+
+    return () => {
+      isDestroyed = true;
+      if (animFrameIdRef.current) {
+        cancelAnimationFrame(animFrameIdRef.current);
+      }
+    };
+  }, [activeRoutes, isPlayingScenario, currentStep?.id, isMapReady]);
 
   // Handlers
   const handleToggleClosure = (hexId: string) => {
@@ -421,10 +643,19 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
 
   return (
     <div className="relative w-full h-screen bg-[#0A0A0A] overflow-hidden select-none font-body">
-      {/* 3D MapLibre WebGL Canvas Container */}
-      <div ref={mapContainerRef} className="absolute inset-0 w-full h-full" />
+      {/* Primary 3D MapLibre WebGL Canvas Container or 2.5D Digital Twin Fallback */}
+      {webGlSupported ? (
+        <div ref={mapContainerRef} className="absolute inset-0 w-full h-full" />
+      ) : (
+        <DigitalTwinFallback
+          cells={cells}
+          activeRouteId={activeRouteId}
+          onSelectCell={(c) => setSelectedCellId(c.h3Index)}
+          selectedCellId={selectedCellId}
+        />
+      )}
 
-      {/* Top Telemetry Status Bar - Positioned cleanly under the Navbar */}
+      {/* Top Telemetry Status Bar */}
       <StatusBar
         activeHexCount={cells.length}
         avgStress={avgStress}
@@ -435,13 +666,18 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
         hasToken={true}
       />
 
-      {/* Auto-Play Demo Scenario Narrative Overlay */}
+      {/* Auto-Play Demo Scenario Presentation Overlay */}
       {isPlayingScenario && currentStep && (
         <ScenarioOverlay
           currentStep={currentStep}
           currentStepIndex={currentStepIndex}
           totalSteps={totalSteps}
           isPlaying={isPlayingScenario}
+          isPaused={isScenarioPaused}
+          progressPct={progressPct}
+          speedMultiplier={speedMultiplier}
+          onTogglePause={togglePause}
+          onToggleSpeed={() => setSpeedMultiplier(speedMultiplier === 1 ? 1.5 : 1)}
           onNext={nextStep}
           onPrev={prevStep}
           onStop={stopScenario}

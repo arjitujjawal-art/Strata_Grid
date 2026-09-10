@@ -101,6 +101,25 @@ export interface DemoScenarioStep {
   closedHexId?: string;
   timeOfDay: 'morning' | 'monsoon_noon' | 'evening_rush' | 'night';
   systemLog: string;
+  bannerType?: 'problem' | 'solution' | 'neutral';
+  bannerHeadline?: string;
+  bannerDetail?: string;
+  metrics?: {
+    strainPct: number;
+    conditionText: string;
+    commuteMin: number;
+    impactSavings: string;
+    statusColor: 'emerald' | 'gold' | 'red';
+  };
+  chokepoints?: {
+    id: string;
+    name: string;
+    coords: [number, number];
+    strain: number;
+    status: 'critical' | 'mitigated' | 'restricted' | 'nominal';
+    label: string;
+    sublabel: string;
+  }[];
 }
 
 export interface TeamMember {

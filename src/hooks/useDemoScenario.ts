@@ -6,50 +6,73 @@ import { DemoScenarioStep } from '../types';
 interface UseDemoScenarioOptions {
   map: MapLibreMap | null;
   onStepChange?: (step: DemoScenarioStep) => void;
-  stepDurationMs?: number;
+  baseStepDurationMs?: number;
 }
 
 export function useDemoScenario({
   map,
   onStepChange,
-  stepDurationMs = 11000
+  baseStepDurationMs = 9500
 }: UseDemoScenarioOptions) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [speedMultiplier, setSpeedMultiplier] = useState<1 | 1.5>(1);
+  const [progressPct, setProgressPct] = useState(0);
 
+  const stepStartTimeRef = useRef<number>(Date.now());
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const onStepChangeRef = useRef(onStepChange);
+  const mapRef = useRef(map);
+
+  // Keep references fresh
+  useEffect(() => {
+    onStepChangeRef.current = onStepChange;
+  }, [onStepChange]);
+
+  useEffect(() => {
+    mapRef.current = map;
+  }, [map]);
+
+  const stepDuration = Math.round(baseStepDurationMs / speedMultiplier);
   const currentStep = DEMO_SCENARIO_STEPS[currentStepIndex];
 
   // Execute camera movement and state update for a specific step
-  const applyStep = useCallback(
-    (stepIndex: number) => {
-      const step = DEMO_SCENARIO_STEPS[stepIndex];
-      if (!step) return;
+  const applyStep = useCallback((stepIndex: number) => {
+    const step = DEMO_SCENARIO_STEPS[stepIndex];
+    if (!step) return;
 
-      // Animate map camera with cinematic ease
-      if (map) {
-        map.flyTo({
+    stepStartTimeRef.current = Date.now();
+    setProgressPct(0);
+
+    // Animate map camera with cinematic ease
+    const activeMap = mapRef.current;
+    if (activeMap) {
+      try {
+        activeMap.flyTo({
           center: step.camera.center,
           zoom: step.camera.zoom,
           pitch: step.camera.pitch,
           bearing: step.camera.bearing,
-          duration: 3500,
+          duration: 2800,
           essential: true
         });
+      } catch (err) {
+        console.debug('Camera flyTo caught:', err);
       }
+    }
 
-      if (onStepChange) {
-        onStepChange(step);
-      }
-    },
-    [map, onStepChange]
-  );
+    if (onStepChangeRef.current) {
+      onStepChangeRef.current(step);
+    }
+  }, []);
 
   const nextStep = useCallback(() => {
     setCurrentStepIndex((prev) => {
       const next = prev + 1;
       if (next >= DEMO_SCENARIO_STEPS.length) {
         setIsPlaying(false);
+        setIsPaused(false);
         return prev;
       }
       applyStep(next);
@@ -77,52 +100,71 @@ export function useDemoScenario({
 
   const startScenario = useCallback(() => {
     setIsPlaying(true);
+    setIsPaused(false);
     setCurrentStepIndex(0);
     applyStep(0);
   }, [applyStep]);
 
   const stopScenario = useCallback(() => {
     setIsPlaying(false);
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
+    setIsPaused(false);
+    setProgressPct(0);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
   }, []);
 
-  // Interval timer for auto-advancing steps
+  const togglePause = useCallback(() => {
+    setIsPaused((prev) => !prev);
+  }, []);
+
+  // Smooth progress ticker & auto-advance timer
   useEffect(() => {
-    if (isPlaying) {
-      timerRef.current = setInterval(() => {
-        setCurrentStepIndex((prev) => {
-          const next = prev + 1;
-          if (next >= DEMO_SCENARIO_STEPS.length) {
-            setIsPlaying(false);
-            return prev;
-          }
-          applyStep(next);
-          return next;
-        });
-      }, stepDurationMs);
+    if (isPlaying && !isPaused) {
+      intervalRef.current = setInterval(() => {
+        const elapsed = Date.now() - stepStartTimeRef.current;
+        const pct = Math.min(100, Math.round((elapsed / stepDuration) * 100));
+        setProgressPct(pct);
+
+        if (elapsed >= stepDuration) {
+          setCurrentStepIndex((prev) => {
+            const next = prev + 1;
+            if (next >= DEMO_SCENARIO_STEPS.length) {
+              setIsPlaying(false);
+              setIsPaused(false);
+              return prev;
+            }
+            applyStep(next);
+            return next;
+          });
+        }
+      }, 100);
     } else {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     }
 
     return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
-  }, [isPlaying, stepDurationMs, applyStep]);
+  }, [isPlaying, isPaused, stepDuration, applyStep]);
 
   return {
     isPlaying,
+    isPaused,
     currentStepIndex,
     currentStep,
     totalSteps: DEMO_SCENARIO_STEPS.length,
+    progressPct,
+    speedMultiplier,
+    setSpeedMultiplier,
+    togglePause,
     startScenario,
     stopScenario,
     nextStep,
