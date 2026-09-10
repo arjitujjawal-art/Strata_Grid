@@ -27,31 +27,77 @@ interface MapDashboardProps {
 }
 
 // 100% Free, High-Performance CartoDB Dark Matter Basemap (Zero API Key / Zero Remote GL Font Dependencies)
-const CARTO_DARK_RASTER_STYLE: any = {
+// 100% Free & Open ESRI World Dark Gray Canvas (Zero Watermarks / Zero API Key Required)
+const ESRI_DARK_STYLE: any = {
   version: 8,
-  name: 'CartoDB Dark Matter',
+  name: 'ESRI Dark Gray Canvas',
   sources: {
-    'carto-dark-tiles': {
+    'esri-dark-tiles': {
       type: 'raster',
       tiles: [
-        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-        'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
       ],
       tileSize: 256,
-      attribution: '© CARTO, © OpenStreetMap'
+      attribution: '© Esri, HERE, Garmin, © OpenStreetMap contributors'
+    },
+    'esri-dark-reference': {
+      type: 'raster',
+      tiles: [
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
+      ],
+      tileSize: 256
     }
   },
   layers: [
     {
-      id: 'carto-dark-layer',
+      id: 'esri-dark-base',
       type: 'raster',
-      source: 'carto-dark-tiles',
+      source: 'esri-dark-tiles',
       minzoom: 0,
-      maxzoom: 20
+      maxzoom: 18
+    },
+    {
+      id: 'esri-dark-ref',
+      type: 'raster',
+      source: 'esri-dark-reference',
+      minzoom: 0,
+      maxzoom: 18,
+      paint: {
+        'raster-opacity': 0.8
+      }
     }
   ]
+};
+
+// Optional CARTO Dark Matter (requires free key from carto.com/basemaps/apikey to remove watermark)
+const getCartoStyle = (key?: string): any => {
+  const query = key ? `?key=${encodeURIComponent(key)}` : '';
+  return {
+    version: 8,
+    name: 'CartoDB Dark Matter',
+    sources: {
+      'carto-dark-tiles': {
+        type: 'raster',
+        tiles: [
+          `https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png${query}`,
+          `https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png${query}`,
+          `https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png${query}`,
+          `https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png${query}`
+        ],
+        tileSize: 256,
+        attribution: '© CARTO, © OpenStreetMap'
+      }
+    },
+    layers: [
+      {
+        id: 'carto-dark-layer',
+        type: 'raster',
+        source: 'carto-dark-tiles',
+        minzoom: 0,
+        maxzoom: 20
+      }
+    ]
+  };
 };
 
 export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) => {
@@ -60,6 +106,14 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
   const [mapInstance, setMapInstance] = useState<MapLibreMap | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
   const [webGlSupported, setWebGlSupported] = useState(true);
+
+  // Basemap Provider State (ESRI by default for zero watermarks and zero keys)
+  const [basemapProvider, setBasemapProvider] = useState<'esri' | 'carto'>(() => {
+    return (localStorage.getItem('stratagrid_basemap_provider') as 'esri' | 'carto') || 'esri';
+  });
+  const [cartoApiKey, setCartoApiKey] = useState<string>(() => {
+    return localStorage.getItem('stratagrid_carto_key') || '';
+  });
 
   // Settings modal state
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
@@ -250,9 +304,10 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
 
     let map: MapLibreMap;
     try {
+      const activeStyle = basemapProvider === 'carto' ? getCartoStyle(cartoApiKey) : ESRI_DARK_STYLE;
       map = new maplibregl.Map({
         container: mapContainerRef.current,
-        style: CARTO_DARK_RASTER_STYLE,
+        style: activeStyle,
         center: [73.8050, 18.5650], // Pune Metro
         zoom: 12.0,
         pitch: 52, // 3D Isometric View
@@ -474,7 +529,7 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
       setMapInstance(null);
       setIsMapReady(false);
     };
-  }, [webGlSupported]);
+  }, [webGlSupported, basemapProvider, cartoApiKey]);
 
   // Dynamic 3D HTML Markers for Demonstration Chokepoints
   useEffect(() => {
@@ -730,13 +785,23 @@ export const MapDashboard: React.FC<MapDashboardProps> = ({ onAskAiAboutCell }) 
       {/* Bottom-Left Simulated Kernel Telemetry Console */}
       <TerminalLog logs={logs} onClearLogs={() => setLogs([])} />
 
-      {/* Free Engine Information Modal */}
+      {/* Basemap Configuration & Free Engine Information Modal */}
       <TokenModal
         isOpen={isTokenModalOpen}
         onClose={() => setIsTokenModalOpen(false)}
-        currentToken=""
-        onSaveToken={() => {
-          setIsTokenModalOpen(false);
+        activeProvider={basemapProvider}
+        cartoApiKey={cartoApiKey}
+        onSaveBasemapConfig={(provider, key) => {
+          setBasemapProvider(provider);
+          setCartoApiKey(key);
+          localStorage.setItem('stratagrid_basemap_provider', provider);
+          localStorage.setItem('stratagrid_carto_key', key);
+          addLog(
+            `Basemap configured: ${
+              provider === 'esri' ? 'ESRI World Dark Gray (Zero Watermark / Clean)' : 'CARTO Dark Matter'
+            }`,
+            'success'
+          );
         }}
       />
     </div>
